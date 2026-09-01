@@ -24,3 +24,4 @@ frontend/dist/
 
 # macOS
 .DS_Store
+backend/simulator/

@@ -1,9 +1,18 @@
-from fastapi import Header, HTTPException
+from fastapi import HTTPException, Security
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from firebase_admin import auth
 
 
+# Swagger/OpenAPI Bearer authentication scheme
+bearer_scheme = HTTPBearer(
+    auto_error=False,
+)
+
+
 def verify_firebase_token(
-    authorization: str | None = Header(default=None),
+    credentials: HTTPAuthorizationCredentials | None = Security(
+        bearer_scheme
+    ),
 ):
     """
     Verify a Firebase ID token sent as:
@@ -11,19 +20,19 @@ def verify_firebase_token(
     Authorization: Bearer <firebase_id_token>
     """
 
-    if not authorization:
+    if credentials is None:
         raise HTTPException(
             status_code=401,
             detail="Authorization header is required",
         )
 
-    if not authorization.startswith("Bearer "):
+    if credentials.scheme.lower() != "bearer":
         raise HTTPException(
             status_code=401,
             detail="Authorization header must use Bearer token",
         )
 
-    id_token = authorization.split("Bearer ", 1)[1].strip()
+    id_token = credentials.credentials.strip()
 
     if not id_token:
         raise HTTPException(

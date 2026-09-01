@@ -24,7 +24,6 @@ export const register = async (email, password) => {
     return result.user;
 };
 
-
 export const login = async (email, password) => {
     const result = await signInWithEmailAndPassword(
         auth,
@@ -35,11 +34,9 @@ export const login = async (email, password) => {
     return result.user;
 };
 
-
 export const logout = async () => {
     await signOut(auth);
 };
-
 
 export const getCurrentUser = () => {
     return auth.currentUser;
@@ -58,6 +55,9 @@ export const getIdToken = async () => {
     }
 
     const token = await user.getIdToken(true);
+
+    // TEMPORARY: used only for local testing
+    console.log("TOKEN:", token);
 
     if (!token) {
         throw new Error(
@@ -84,7 +84,7 @@ export const getIdToken = async () => {
 
 
 // ============================================================
-// GENERIC LIFEroute PROFILE
+// GENERIC LIFEROUTE PROFILE
 // ============================================================
 
 export const getMe = async () => {
@@ -207,3 +207,58 @@ export const getPatientMe = async () => {
         );
     }
 };
+
+
+// ============================================================
+// TEMPORARY VITAL TEST
+// ============================================================
+
+export const sendTestVital = async () => {
+    const token = await getIdToken();
+
+    const response = await fetch(
+        `${API_URL}/vitals/`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+                patient_id: auth.currentUser.uid,
+                device_id: "DEMO-DEVICE-001",
+                timestamp: new Date().toISOString(),
+                heart_rate: 82,
+                spo2: 98,
+                temperature: 36.7,
+                activity: 0.4,
+            }),
+        }
+    );
+
+    const data = await response.json();
+
+    console.log(
+        "VITAL RESPONSE:",
+        response.status,
+        data
+    );
+
+    if (!response.ok) {
+        throw new Error(
+            data.detail || "Failed to send vital reading."
+        );
+    }
+
+    return data;
+};
+
+
+// ============================================================
+// TEMPORARY BROWSER TEST ACCESS
+// ============================================================
+
+// Allows us to call sendTestVital() from the browser console.
+// REMOVE THIS AFTER TESTING.
+window.sendTestVital = sendTestVital;
