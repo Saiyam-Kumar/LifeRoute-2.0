@@ -1,9 +1,10 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, Link } from "react-router-dom";
 import {
   LayoutDashboard,
   BedDouble,
   BarChart3,
   Building2,
+  Users,
   LogOut,
   Menu,
   X,
@@ -15,6 +16,11 @@ const NAV_ITEMS = [
     label: "Dashboard",
     path: "/hospital/dashboard",
     icon: LayoutDashboard,
+  },
+  {
+    label: "Patients",
+    path: "/hospital/patients",
+    icon: Users,
   },
   {
     label: "Resources",
@@ -73,14 +79,14 @@ export default function HospitalLayout() {
   return (
     <div className="min-h-screen bg-[#0B0D12] text-white">
 
-      {/* ========================================================== */}
-      {/* MOBILE TOP BAR                                             */}
-      {/* ========================================================== */}
-
+      {/* Mobile top bar */}
       <header className="fixed inset-x-0 top-0 z-40 flex h-16 items-center justify-between border-b border-white/[0.08] bg-[#0B0D12]/90 px-5 backdrop-blur-xl lg:hidden">
 
-        <div className="flex items-center gap-3">
-
+        <Link
+          to="/"
+          className="flex items-center gap-3"
+          aria-label="Go to LifeRoute home"
+        >
           <LifeRouteLogo mobile />
 
           <div>
@@ -92,31 +98,21 @@ export default function HospitalLayout() {
               Hospital Portal
             </p>
           </div>
-
-        </div>
+        </Link>
 
         <button
           type="button"
-          onClick={() =>
-            setMobileOpen((value) => !value)
-          }
+          onClick={() => setMobileOpen((value) => !value)}
           className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] text-white/60 transition hover:bg-white/[0.07] hover:text-white"
           aria-label="Toggle navigation"
         >
-          {mobileOpen ? (
-            <X size={20} />
-          ) : (
-            <Menu size={20} />
-          )}
+          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
 
       </header>
 
 
-      {/* ========================================================== */}
-      {/* MOBILE NAVIGATION                                          */}
-      {/* ========================================================== */}
-
+      {/* Mobile navigation */}
       {mobileOpen && (
         <div className="fixed inset-0 z-30 bg-[#0B0D12] pt-20 lg:hidden">
 
@@ -125,16 +121,13 @@ export default function HospitalLayout() {
             <div className="space-y-2">
 
               {NAV_ITEMS.map((item) => {
-
                 const Icon = item.icon;
 
                 return (
                   <NavLink
                     key={item.path}
                     to={item.path}
-                    onClick={() =>
-                      setMobileOpen(false)
-                    }
+                    onClick={() => setMobileOpen(false)}
                     className={({ isActive }) =>
                       [
                         "flex items-center gap-3 rounded-xl px-4 py-3.5 text-sm transition-all",
@@ -144,19 +137,10 @@ export default function HospitalLayout() {
                       ].join(" ")
                     }
                   >
-
-                    <Icon
-                      size={18}
-                      strokeWidth={1.7}
-                    />
-
-                    <span>
-                      {item.label}
-                    </span>
-
+                    <Icon size={18} strokeWidth={1.7} />
+                    <span>{item.label}</span>
                   </NavLink>
                 );
-
               })}
 
             </div>
@@ -167,32 +151,23 @@ export default function HospitalLayout() {
       )}
 
 
-      {/* ========================================================== */}
-      {/* MAIN LAYOUT                                                */}
-      {/* ========================================================== */}
-
+      {/* Main layout */}
       <div className="flex min-h-screen">
 
-
-        {/* ======================================================== */}
-        {/* DESKTOP SIDEBAR                                          */}
-        {/* ======================================================== */}
-
+        {/* Desktop sidebar */}
         <aside className="fixed inset-y-0 left-0 z-30 hidden w-[250px] border-r border-white/[0.08] bg-[#0D1016] lg:flex lg:flex-col">
 
-
-          {/* ====================================================== */}
-          {/* LOGO                                                    */}
-          {/* ====================================================== */}
-
+          {/* Logo */}
           <div className="flex h-[82px] items-center border-b border-white/[0.07] px-6">
 
-            <div className="flex items-center gap-3">
-
+            <Link
+              to="/"
+              className="flex items-center gap-3"
+              aria-label="Go to LifeRoute home"
+            >
               <LifeRouteLogo />
 
               <div>
-
                 <p className="font-display text-[16px] font-semibold tracking-tight text-white">
                   LifeRoute
                 </p>
@@ -200,29 +175,22 @@ export default function HospitalLayout() {
                 <p className="mt-0.5 font-mono text-[9px] uppercase tracking-[0.2em] text-white/30">
                   Hospital Portal
                 </p>
-
               </div>
-
-            </div>
+            </Link>
 
           </div>
 
 
-          {/* ====================================================== */}
-          {/* NAVIGATION                                              */}
-          {/* ====================================================== */}
-
+          {/* Navigation */}
           <div className="flex-1 px-4 py-7">
 
             <p className="mb-3 px-3 font-mono text-[9px] font-medium uppercase tracking-[0.22em] text-white/25">
               Portal
             </p>
 
-
             <nav className="space-y-1.5">
 
               {NAV_ITEMS.map((item) => {
-
                 const Icon = item.icon;
 
                 return (
@@ -238,20 +206,15 @@ export default function HospitalLayout() {
                       ].join(" ")
                     }
                   >
-
                     {({ isActive }) => (
                       <>
-
                         {isActive && (
                           <span className="absolute left-0 top-1/2 h-5 w-[2px] -translate-y-1/2 rounded-full bg-[#FF5A36]" />
                         )}
 
-
                         <Icon
                           size={17}
-                          strokeWidth={
-                            isActive ? 2 : 1.7
-                          }
+                          strokeWidth={isActive ? 2 : 1.7}
                           className={
                             isActive
                               ? "text-[#FF5A36]"
@@ -259,17 +222,11 @@ export default function HospitalLayout() {
                           }
                         />
 
-
-                        <span>
-                          {item.label}
-                        </span>
-
+                        <span>{item.label}</span>
                       </>
                     )}
-
                   </NavLink>
                 );
-
               })}
 
             </nav>
@@ -277,10 +234,7 @@ export default function HospitalLayout() {
           </div>
 
 
-          {/* ====================================================== */}
-          {/* BOTTOM HOSPITAL STATUS                                  */}
-          {/* ====================================================== */}
-
+          {/* Bottom status */}
           <div className="border-t border-white/[0.07] p-4">
 
             <div className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-4">
@@ -295,7 +249,6 @@ export default function HospitalLayout() {
 
               </div>
 
-
               <p className="mt-2 text-[11px] leading-5 text-white/30">
                 Hospital information is connected to the LifeRoute routing
                 system.
@@ -303,21 +256,12 @@ export default function HospitalLayout() {
 
             </div>
 
-
             <button
               type="button"
               className="mt-3 flex w-full items-center gap-3 rounded-xl px-3.5 py-3 text-sm text-white/35 transition hover:bg-white/[0.035] hover:text-white/70"
             >
-
-              <LogOut
-                size={17}
-                strokeWidth={1.7}
-              />
-
-              <span>
-                Sign out
-              </span>
-
+              <LogOut size={17} strokeWidth={1.7} />
+              <span>Sign out</span>
             </button>
 
           </div>
@@ -325,14 +269,9 @@ export default function HospitalLayout() {
         </aside>
 
 
-        {/* ======================================================== */}
-        {/* MAIN CONTENT                                             */}
-        {/* ======================================================== */}
-
+        {/* Main content */}
         <main className="min-w-0 flex-1 pt-16 lg:ml-[250px] lg:pt-0">
-
           <Outlet />
-
         </main>
 
       </div>

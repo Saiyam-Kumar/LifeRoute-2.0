@@ -21,7 +21,6 @@ function Logo() {
         aria-hidden="true"
       >
         <circle cx="4" cy="21" r="2.5" fill="#FFFFFF" />
-
         <circle cx="22" cy="5" r="2.5" fill="#FF5A36" />
 
         <path
@@ -49,14 +48,14 @@ export default function Navbar() {
     navigate("/patient/assessment");
   };
 
+  const goToPatientLogin = () => {
+    setOpen(false);
+    navigate("/patient/login");
+  };
+
   const goToHospitalLogin = () => {
     setOpen(false);
     navigate("/hospital/login");
-  };
-
-  const goToHospitalRegister = () => {
-    setOpen(false);
-    navigate("/hospital/register");
   };
 
   return (
@@ -84,6 +83,14 @@ export default function Navbar() {
             </a>
           ))}
 
+          {/* Patient Portal */}
+          <button
+            onClick={goToPatientLogin}
+            className="text-[14px] font-medium text-white/70 hover:text-white transition-colors"
+          >
+            Patient Portal
+          </button>
+
           {/* Hospital Portal */}
           <button
             onClick={goToHospitalLogin}
@@ -91,7 +98,6 @@ export default function Navbar() {
           >
             Hospital Portal
           </button>
-
         </div>
 
         {/* Emergency Assessment */}
@@ -137,6 +143,15 @@ export default function Navbar() {
             </a>
           ))}
 
+          {/* Patient Portal */}
+          <button
+            onClick={goToPatientLogin}
+            className="text-left text-[15px] font-medium text-white/70 hover:text-white transition-colors"
+          >
+            Patient Portal
+          </button>
+
+          {/* Hospital Portal */}
           <button
             onClick={goToHospitalLogin}
             className="text-left text-[15px] font-medium text-white/70 hover:text-white transition-colors"

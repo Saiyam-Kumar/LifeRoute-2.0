@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 // Layouts
 import HospitalLayout from "../layouts/HospitalLayout";
+import PatientLayout from "../layouts/PatientLayout";
 
 // Landing
 import Landing from "../pages/Landing/Landing";
@@ -22,11 +23,21 @@ import HospitalDetails from "../pages/Patient/HospitalDetails";
 import History from "../pages/Patient/History";
 import Profile from "../pages/Patient/Profile";
 
+// Patient Portal
+import Overview from "../pages/Patient/Portal/Overview";
+import MyHealth from "../pages/Patient/Portal/MyHealth";
+import HealthTrends from "../pages/Patient/Portal/HealthTrends";
+import CarePlan from "../pages/Patient/Portal/CarePlan";
+import Alerts from "../pages/Patient/Portal/Alerts";
+import Telemedicine from "../pages/Patient/Portal/Telemedicine";
+
 // RFID / NFC
 import RfidNfcScanner from "../components/patient/RfidNfcScanner";
 
 // Hospital
 import HospitalDashboard from "../pages/Hospital/Dashboard";
+import Patients from "../pages/Hospital/Patients";
+import PatientDetails from "../pages/Hospital/PatientDetails";
 import Resources from "../pages/Hospital/Resources";
 import Analytics from "../pages/Hospital/Analytics";
 import HospitalProfile from "../pages/Hospital/Profile";
@@ -35,142 +46,198 @@ import HospitalProfile from "../pages/Hospital/Profile";
 import ProtectedRoute from "./ProtectedRoute";
 
 function AppRoutes() {
-    return (
-        <BrowserRouter>
-            <Routes>
+  return (
+    <BrowserRouter>
+      <Routes>
 
-                {/* ==================== */}
-                {/* LANDING              */}
-                {/* ==================== */}
+        {/* ==================== */}
+        {/* LANDING              */}
+        {/* ==================== */}
 
-                <Route
-                    path="/"
-                    element={<Landing />}
-                />
+        <Route
+          path="/"
+          element={<Landing />}
+        />
 
-                {/* ==================== */}
-                {/* INCIDENTS             */}
-                {/* ==================== */}
+        {/* ==================== */}
+        {/* INCIDENTS             */}
+        {/* ==================== */}
 
-                <Route
-                    path="/incidents"
-                    element={<Incidents />}
-                />
+        <Route
+          path="/incidents"
+          element={<Incidents />}
+        />
 
-                {/* ==================== */}
-                {/* AUTHENTICATION        */}
-                {/* ==================== */}
+        {/* ==================== */}
+        {/* AUTHENTICATION        */}
+        {/* ==================== */}
 
-                <Route
-                    path="/patient/login"
-                    element={<PatientLogin />}
-                />
+        <Route
+          path="/patient/login"
+          element={<PatientLogin />}
+        />
 
-                <Route
-                    path="/patient/register"
-                    element={<PatientRegister />}
-                />
+        <Route
+          path="/patient/register"
+          element={<PatientRegister />}
+        />
 
-                <Route
-                    path="/hospital/login"
-                    element={<HospitalLogin />}
-                />
+        <Route
+          path="/hospital/login"
+          element={<HospitalLogin />}
+        />
 
-                <Route
-                    path="/hospital/register"
-                    element={<HospitalRegister />}
-                />
+        <Route
+          path="/hospital/register"
+          element={<HospitalRegister />}
+        />
 
-                {/* ==================== */}
-                {/* PATIENT               */}
-                {/* ==================== */}
+        {/* ==================== */}
+        {/* PATIENT PORTAL        */}
+        {/* ==================== */}
 
-                <Route
-                    path="/patient/dashboard"
-                    element={
-                        <ProtectedRoute role="patient">
-                            <Dashboard />
-                        </ProtectedRoute>
-                    }
-                />
+        <Route
+          path="/patient/dashboard"
+          element={
+            <ProtectedRoute role="patient">
+              <PatientLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route
+            index
+            element={<Overview />}
+          />
 
-                {/* RFID / NFC IDENTIFICATION */}
-                <Route
-                    path="/patient/rfid"
-                    element={<RfidNfcScanner />}
-                />
+          <Route
+            path="health"
+            element={<MyHealth />}
+          />
 
-                {/* Existing emergency assessment */}
-                <Route
-                    path="/patient/assessment"
-                    element={
-                        <ProtectedRoute role="patient">
-                            <Assessment />
-                        </ProtectedRoute>
-                    }
-                />
+          <Route
+            path="trends"
+            element={<HealthTrends />}
+          />
 
-                <Route
-                    path="/patient/loading"
-                    element={<Loading />}
-                />
+          <Route
+            path="care-plan"
+            element={<CarePlan />}
+          />
 
-                <Route
-                    path="/patient/results"
-                    element={<Results />}
-                />
+          <Route
+            path="alerts"
+            element={<Alerts />}
+          />
 
-                <Route
-                    path="/patient/history"
-                    element={<History />}
-                />
+          <Route
+            path="telemedicine"
+            element={<Telemedicine />}
+          />
 
-                <Route
-                    path="/patient/profile"
-                    element={<Profile />}
-                />
+          <Route
+            path="profile"
+            element={<Profile />}
+          />
+        </Route>
 
-                <Route
-                    path="/patient/hospital"
-                    element={<HospitalDetails />}
-                />
+        {/* ==================== */}
+        {/* RFID / NFC           */}
+        {/* ==================== */}
 
-                {/* ==================== */}
-                {/* HOSPITAL PORTAL      */}
-                {/* ==================== */}
+        <Route
+          path="/patient/rfid"
+          element={<RfidNfcScanner />}
+        />
 
-                <Route
-                    path="/hospital"
-                    element={<HospitalLayout />}
-                >
-                    <Route
-                        path="dashboard"
-                        element={
-                            <ProtectedRoute role="hospital">
-                                <HospitalDashboard />
-                            </ProtectedRoute>
-                        }
-                    />
+        {/* ==================== */}
+        {/* EXISTING EMERGENCY    */}
+        {/* ==================== */}
 
-                    <Route
-                        path="resources"
-                        element={<Resources />}
-                    />
+        <Route
+          path="/patient/assessment"
+          element={
+            <ProtectedRoute role="patient">
+              <Assessment />
+            </ProtectedRoute>
+          }
+        />
 
-                    <Route
-                        path="analytics"
-                        element={<Analytics />}
-                    />
+        <Route
+          path="/patient/loading"
+          element={<Loading />}
+        />
 
-                    <Route
-                        path="profile"
-                        element={<HospitalProfile />}
-                    />
-                </Route>
+        <Route
+          path="/patient/results"
+          element={<Results />}
+        />
 
-            </Routes>
-        </BrowserRouter>
-    );
+        <Route
+          path="/patient/history"
+          element={<History />}
+        />
+
+        <Route
+          path="/patient/hospital"
+          element={<HospitalDetails />}
+        />
+
+        {/* ==================== */}
+        {/* HOSPITAL PORTAL       */}
+        {/* ==================== */}
+
+        <Route
+          path="/hospital"
+          element={<HospitalLayout />}
+        >
+
+          <Route
+            path="dashboard"
+            element={
+              <ProtectedRoute role="hospital">
+                <HospitalDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="patients"
+            element={
+              <ProtectedRoute role="hospital">
+                <Patients />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="patients/:patientId"
+            element={
+              <ProtectedRoute role="hospital">
+                <PatientDetails />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="resources"
+            element={<Resources />}
+          />
+
+          <Route
+            path="analytics"
+            element={<Analytics />}
+          />
+
+          <Route
+            path="profile"
+            element={<HospitalProfile />}
+          />
+
+        </Route>
+
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
 export default AppRoutes;

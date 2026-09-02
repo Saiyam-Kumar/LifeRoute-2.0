@@ -98,7 +98,7 @@ function PatientLogin() {
             // Patient is fully authenticated
             // -----------------------------------------
 
-            navigate("/patient/assessment");
+            navigate("/patient/dashboard");
 
         } catch (err) {
             console.error(
