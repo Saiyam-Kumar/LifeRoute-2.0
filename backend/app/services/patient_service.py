@@ -1,5 +1,3 @@
-from datetime import datetime, timezone
-
 from app.database.firebase import db
 
 
@@ -51,35 +49,3 @@ class PatientService:
         doc_ref.set(patient_data)
 
         return patient_data
-
-    def update_emergency_state(
-        self,
-        uid: str,
-        state: dict
-    ):
-        """
-        Updates the authenticated patient's current
-        emergency state in Firestore.
-        """
-
-        doc_ref = (
-            db.collection(self.COLLECTION)
-            .document(uid)
-        )
-
-        state_with_timestamp = {
-            **state,
-            "updated_at": datetime.now(
-                timezone.utc
-            ),
-        }
-
-        doc_ref.set(
-            {
-                "emergency_state":
-                    state_with_timestamp
-            },
-            merge=True
-        )
-
-        return state_with_timestamp

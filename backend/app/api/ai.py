@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends
 
 from app.models.patient_input import PatientInput
 from app.services.recommendation import RecommendationService
-from app.services.patient_service import PatientService
 from app.core.auth import verify_firebase_token
 
 from ai.predictor import predict_ktas
@@ -16,7 +15,6 @@ router = APIRouter(
 
 
 recommendation_service = RecommendationService()
-patient_service = PatientService()
 
 
 @router.post("/predict")
@@ -41,17 +39,8 @@ def predict(
 
 
     # --------------------------------------------------
-    # Initial live state
+    # Patient input
     # --------------------------------------------------
-
-    patient_service.update_emergency_state(
-        uid,
-        {
-            "stage": "assessment_processing",
-            "status": "Emergency assessment is being processed.",
-        }
-    )
-
 
     patient_data = patient.model_dump()
 
@@ -68,20 +57,6 @@ def predict(
 
 
     # --------------------------------------------------
-    # Update live state after KTAS
-    # --------------------------------------------------
-
-    patient_service.update_emergency_state(
-        uid,
-        {
-            "stage": "ktas_completed",
-            "status": "Emergency triage completed.",
-            "ktas_level": ktas_level,
-        }
-    )
-
-
-    # --------------------------------------------------
     # Step 2: Resource Allocation
     # --------------------------------------------------
 
@@ -93,26 +68,6 @@ def predict(
 
 
     # --------------------------------------------------
-    # Update live state after resources
-    # --------------------------------------------------
-
-    patient_service.update_emergency_state(
-        uid,
-        {
-            "stage": "resources_identified",
-            "status":
-                "Required emergency resources identified.",
-            "ktas_level": ktas_level,
-            "category":
-                resource_result["category"],
-            "resources": resources,
-            "reasons":
-                resource_result["reasons"],
-        }
-    )
-
-
-    # --------------------------------------------------
     # Step 3: Hospital Recommendation
     # --------------------------------------------------
 
@@ -121,70 +76,11 @@ def predict(
         patient.longitude
     )
 
-
-    patient_service.update_emergency_state(
-        uid,
-        {
-            "stage": "hospital_matching",
-            "status":
-                "Matching patient requirements with hospitals.",
-            "ktas_level": ktas_level,
-            "resources": resources,
-        }
-    )
-
-
     hospital_result = (
         recommendation_service.recommend_hospital(
             patient_location=patient_location,
             patient_resources=resources
         )
-    )
-
-
-    # --------------------------------------------------
-    # Extract recommendation information
-    # --------------------------------------------------
-
-    recommended_hospital_name = None
-    eta = None
-    distance_km = None
-
-    if hospital_result:
-
-        recommended_hospital_name = (
-            hospital_result.get("hospital")
-            or hospital_result.get("name")
-        )
-
-        eta = hospital_result.get(
-            "eta"
-        )
-
-        distance_km = hospital_result.get(
-            "distance_km"
-        )
-
-
-    # --------------------------------------------------
-    # Final live state
-    # --------------------------------------------------
-
-    patient_service.update_emergency_state(
-        uid,
-        {
-            "stage": "hospital_recommended",
-            "status":
-                "Most suitable hospital has been identified.",
-            "ktas_level": ktas_level,
-            "category":
-                resource_result["category"],
-            "resources": resources,
-            "recommended_hospital":
-                recommended_hospital_name,
-            "eta": eta,
-            "distance_km": distance_km,
-        }
     )
 
 
