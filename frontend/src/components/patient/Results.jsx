@@ -2,7 +2,6 @@ import usePrediction from "../../hooks/usePrediction";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
-import LiveEmergencyStatus from "./LiveEmergencyStatus";
 
 import {
   Activity,
@@ -170,7 +169,6 @@ export default function Results() {
       {/* EMERGENCY STRIP                                            */}
       {/* ========================================================== */}
 
-      <LiveEmergencyStatus />
 
       {/* ========================================================== */}
       {/* HEADER                                                      */}
