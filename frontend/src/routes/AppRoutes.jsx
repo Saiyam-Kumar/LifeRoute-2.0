@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 // Layouts
+import PatientLayout from "../layouts/PatientLayout";
 import HospitalLayout from "../layouts/HospitalLayout";
 
 // Landing
@@ -89,10 +90,15 @@ function AppRoutes() {
                     path="/patient/dashboard"
                     element={
                         <ProtectedRoute role="patient">
-                            <Dashboard />
+                            <PatientLayout />
                         </ProtectedRoute>
                     }
-                />
+                >
+                    <Route
+                        index
+                        element={<Dashboard />}
+                    />
+                </Route>
 
                 {/* RFID / NFC IDENTIFICATION */}
                 <Route
