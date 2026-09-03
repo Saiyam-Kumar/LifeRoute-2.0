@@ -1,62 +1,101 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import api from "../services/api";
 import {
   normalHealthData,
   deterioratingHealthData,
 } from "../mock/healthData";
 
 export default function useHealthData() {
-  const [stage, setStage] = useState("normal");
+  const { user } = useAuth() || {};
 
-  let data;
-  let latest;
+  const [stage, setStage] = useState("normal");
+  const [healthData, setHealthData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadHealthData() {
+      if (!user?.uid) {
+        setHealthData(null);
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const response = await api.get(`/vitals/history/${user.uid}`, {
+          params: { limit: 100 },
+        });
+
+        if (!cancelled && Array.isArray(response.data) && response.data.length > 0) {
+          const readings = [...response.data].reverse();
+
+          setHealthData(readings);
+          setStage("real");
+        }
+      } catch (error) {
+        console.error("Failed to load patient vitals:", error);
+
+        if (!cancelled) {
+          setHealthData(null);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    loadHealthData();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.uid]);
+
+  const data =
+    stage === "real"
+      ? healthData
+      : stage === "deteriorating"
+        ? deterioratingHealthData
+        : normalHealthData;
+
+  const latest = data?.[data.length - 1] ?? null;
+
   let risk;
 
-  if (stage === "normal") {
-    data = normalHealthData;
-    latest = data[data.length - 1];
-
+  if (stage === "real" && latest) {
     risk = {
-      score: 0.12,
-      level: "NORMAL",
-      reasons: [],
+      score: 0,
+      label: "Monitoring",
+      reasons: ["Based on your latest recorded vitals."],
     };
   } else if (stage === "deteriorating") {
-    data = deterioratingHealthData.slice(0, 3);
-    latest = data[data.length - 1];
-
     risk = {
-      score: 0.58,
-      level: "HIGH",
+      score: 0.78,
+      label: "Deteriorating",
       reasons: [
-        "Heart rate is increasing",
-        "SpO₂ is beginning to decline",
-        "Temperature is increasing",
+        "Heart rate is trending upward.",
+        "SpO₂ is trending downward.",
+        "Temperature is increasing.",
       ],
     };
   } else {
-    data = deterioratingHealthData;
-    latest = data[data.length - 1];
-
     risk = {
-      score: 0.90,
-      level: "CRITICAL",
-      reasons: [
-        "SpO₂ is critically low",
-        "SpO₂ is declining",
-        "Heart rate is elevated",
-        "Heart rate is increasing",
-        "Activity level is unusually low",
-      ],
+      score: 0.12,
+      label: "Normal",
+      reasons: ["Vitals are currently within the demo normal range."],
     };
   }
 
   return {
-    data,
-    latest,
     stage,
     setStage,
+    data,
+    latest,
     risk,
-    loading: false,
-    error: null,
+    loading,
+    usingRealData: stage === "real",
   };
 }
