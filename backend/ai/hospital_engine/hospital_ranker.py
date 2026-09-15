@@ -82,6 +82,7 @@ def recommend_hospital(patient_resources, hospitals):
             final_score *= 0.50
 
         ranked.append({
+            "id": hospital["id"],
             "hospital": hospital["name"],
             "score": round(final_score, 2),
 

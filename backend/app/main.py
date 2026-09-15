@@ -2,7 +2,6 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from app.api.vitals import router as vitals_router
 
 from app.core.config import settings
 
@@ -12,6 +11,8 @@ from app.api.hospital import router as hospital_router
 from app.api.ai import router as ai_router
 from app.api.auth import router as auth_router
 from app.api.patient import router as patient_router
+from app.api.vitals import router as vitals_router
+from app.api.wearable import router as wearable_router
 
 
 app = FastAPI(
@@ -73,3 +74,4 @@ app.include_router(ai_router)
 app.include_router(auth_router)
 app.include_router(patient_router)
 app.include_router(vitals_router)
+app.include_router(wearable_router)

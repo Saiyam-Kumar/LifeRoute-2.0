@@ -755,120 +755,6 @@ export default function Resources() {
         </section>
 
 
-        {/* LIVE CAPACITY */}
-
-        <section className="mt-8">
-
-          <div>
-
-            <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-[#FF5A36]/70">
-
-              Live Capacity
-
-            </p>
-
-
-            <div className="mt-2 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-
-              <div>
-
-                <h2 className="font-display text-xl font-semibold tracking-tight text-white">
-
-                  Resource Status
-
-                </h2>
-
-
-                <p className="mt-1.5 text-sm text-white/35">
-
-                  LifeRoute continuously interprets hospital capacity to identify available and critical resources.
-
-                </p>
-
-              </div>
-
-
-              <div className="flex items-center gap-2 text-[10px] text-white/25">
-
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-
-                Based on current hospital data
-
-              </div>
-
-            </div>
-
-          </div>
-
-
-          <div className="mt-4 grid gap-4 md:grid-cols-3">
-
-            <StatusCard
-              icon={BedDouble}
-              label="General Beds"
-              value={Number(beds) || 0}
-              status={getCapacityStatus(beds)}
-              accent="orange"
-            />
-
-
-            <StatusCard
-              icon={HeartPulse}
-              label="ICU Beds"
-              value={Number(icu) || 0}
-              status={getCapacityStatus(icu)}
-              accent="blue"
-            />
-
-
-            <StatusCard
-              icon={Wind}
-              label="Ventilators"
-              value={Number(ventilators) || 0}
-              status={getCapacityStatus(ventilators)}
-              accent="green"
-            />
-
-          </div>
-
-
-          <div className="mt-4 rounded-2xl border border-[#FF5A36]/10 bg-[#FF5A36]/[0.035] p-5">
-
-            <div className="flex items-start gap-3">
-
-              <ShieldCheck
-                size={18}
-                className="mt-0.5 shrink-0 text-[#FF5A36]"
-              />
-
-
-              <div>
-
-                <p className="text-sm font-medium text-white/70">
-
-                  Why this matters during a healthcare crisis
-
-                </p>
-
-
-                <p className="mt-1.5 max-w-3xl text-xs leading-5 text-white/35">
-
-                  Resource availability changes rapidly during emergencies.
-                  Keeping this information current allows LifeRoute to make
-                  more informed hospital recommendations instead of relying
-                  only on distance.
-
-                </p>
-
-              </div>
-
-            </div>
-
-          </div>
-
-        </section>
-
-
         {/* CRITICAL RESOURCES */}
 
         <section className="mt-10">
@@ -1569,11 +1455,6 @@ function NumberResourceCard({
           />
 
 
-          <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-white/20">
-
-            available
-
-          </span>
 
         </div>
 

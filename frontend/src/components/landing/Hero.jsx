@@ -27,7 +27,6 @@ export default function Hero() {
         <div className="grid items-center gap-14 lg:grid-cols-[1fr_0.9fr] xl:gap-20">
 
           {/* LEFT — HERO CONTENT */}
-
           <div className="relative max-w-2xl">
 
             <motion.div
@@ -45,7 +44,6 @@ export default function Hero() {
                 Live hospital capacity, not a guess
               </span>
             </motion.div>
-
 
             <motion.h1
               initial={{ opacity: 0, y: 18 }}
@@ -68,7 +66,6 @@ export default function Hero() {
               </span>
             </motion.h1>
 
-
             <motion.p
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
@@ -84,7 +81,6 @@ export default function Hero() {
               the hospital most capable of treating your emergency.
             </motion.p>
 
-
             <motion.div
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
@@ -95,17 +91,12 @@ export default function Hero() {
               }}
               className="mt-9 flex flex-wrap gap-3"
             >
-
-              {/* CHANGED:
-                  Landing → RFID/NFC → Assessment
-              */}
               <Button
                 variant="primary"
-                onClick={() => navigate("/patient/rfid")}
+                onClick={() => navigate("/patient/assessment")}
               >
                 Start Emergency Assessment
               </Button>
-
 
               <Button
                 variant="secondary-dark"
@@ -115,9 +106,7 @@ export default function Hero() {
               >
                 See How It Works
               </Button>
-
             </motion.div>
-
 
             <motion.div
               initial={{ opacity: 0 }}
@@ -137,9 +126,7 @@ export default function Hero() {
 
           </div>
 
-
           {/* RIGHT — AI RECOMMENDATION */}
-
           <motion.div
             initial={{ opacity: 0, x: 35 }}
             animate={{ opacity: 1, x: 0 }}
@@ -153,7 +140,6 @@ export default function Hero() {
 
             {/* Ambient glow */}
             <div className="pointer-events-none absolute -inset-8 rounded-[3rem] bg-[#4A58B4]/[0.05] blur-3xl" />
-
 
             <div
               className="
@@ -174,7 +160,6 @@ export default function Hero() {
               {/* Subtle panel lighting */}
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/[0.035] via-transparent to-route/[0.025]" />
 
-
               {/* Header */}
               <div className="relative flex items-start justify-between">
 
@@ -190,20 +175,17 @@ export default function Hero() {
 
                   </div>
 
-
                   <h2 className="mt-2 text-[22px] font-semibold tracking-tight text-white">
                     AI Recommendation
                   </h2>
 
                 </div>
 
-
                 <span className="rounded-full border border-green-400/15 bg-green-400/[0.06] px-2.5 py-1 text-[10px] font-medium text-green-300/70">
                   LIVE
                 </span>
 
               </div>
-
 
               {/* Hospital metrics */}
               <div className="relative mt-8 space-y-4">
@@ -220,7 +202,6 @@ export default function Hero() {
 
                 </div>
 
-
                 <div className="flex items-center justify-between">
 
                   <span className="text-sm text-white/40">
@@ -232,7 +213,6 @@ export default function Hero() {
                   </span>
 
                 </div>
-
 
                 <div className="flex items-center justify-between">
 
@@ -248,10 +228,8 @@ export default function Hero() {
 
               </div>
 
-
               {/* Divider */}
               <div className="relative my-7 h-px bg-white/[0.08]" />
-
 
               {/* Recommended hospital */}
               <div className="relative">
@@ -259,7 +237,6 @@ export default function Hero() {
                 <p className="text-xs text-white/35">
                   Recommended Hospital
                 </p>
-
 
                 <div className="mt-2 flex items-end justify-between gap-4">
 
@@ -275,7 +252,6 @@ export default function Hero() {
 
                   </div>
 
-
                   <div className="hidden h-10 w-10 items-center justify-center rounded-full border border-route/15 bg-route/[0.06] text-route sm:flex">
 
                     <span className="text-lg">
@@ -287,7 +263,6 @@ export default function Hero() {
                 </div>
 
               </div>
-
 
               {/* Bottom statistics */}
               <div className="relative mt-7 grid grid-cols-2 gap-3">
@@ -312,7 +287,6 @@ export default function Hero() {
 
                 </div>
 
-
                 <div className="rounded-2xl border border-route/[0.12] bg-route/[0.035] p-4">
 
                   <p className="text-xs text-white/35">
@@ -334,7 +308,6 @@ export default function Hero() {
                 </div>
 
               </div>
-
 
               {/* Explanation */}
               <div className="relative mt-5 flex items-center gap-2 text-[11px] text-white/30">

@@ -28,7 +28,11 @@ export default function useHealthData() {
           params: { limit: 100 },
         });
 
-        if (!cancelled && Array.isArray(response.data) && response.data.length > 0) {
+        if (
+          !cancelled &&
+          Array.isArray(response.data) &&
+          response.data.length > 0
+        ) {
           const readings = [...response.data].reverse();
 
           setHealthData(readings);
@@ -78,7 +82,6 @@ export default function useHealthData() {
       reasons: [
         "Heart rate is trending upward.",
         "SpO₂ is trending downward.",
-        "Temperature is increasing.",
       ],
     };
   } else {

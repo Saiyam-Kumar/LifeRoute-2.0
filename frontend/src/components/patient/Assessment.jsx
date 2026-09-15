@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import usePatientForm from "../../hooks/usePatientForm";
+
 import {
   User,
   MessageSquareText,
@@ -11,25 +12,38 @@ import {
   ChevronDown,
   Car,
   Ambulance,
+  Watch,
+  Wifi,
 } from "lucide-react";
+
 
 /* ------------------------------------------------------------------ */
 /* Presentational primitives                                          */
 /* ------------------------------------------------------------------ */
 
-function Card({ icon: Icon, title, subtitle, children }) {
+function Card({
+  icon: Icon,
+  title,
+  subtitle,
+  children,
+}) {
   return (
     <section className="rounded-2xl border border-white/[0.08] bg-[#11151D] p-6 sm:p-8 lg:p-9 shadow-[0_12px_40px_-24px_rgba(0,0,0,0.65)]">
+
       <div className="flex items-start gap-3.5 mb-7">
+
         <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-white/[0.05] shrink-0">
+
           <Icon
             size={18}
             strokeWidth={1.75}
             className="text-white/75"
           />
+
         </div>
 
         <div>
+
           <h2 className="font-display font-semibold text-[17px] tracking-tightest text-white">
             {title}
           </h2>
@@ -39,18 +53,28 @@ function Card({ icon: Icon, title, subtitle, children }) {
               {subtitle}
             </p>
           )}
+
         </div>
+
       </div>
 
       {children}
+
     </section>
   );
 }
 
-function Field({ label, hint, children }) {
+
+function Field({
+  label,
+  hint,
+  children,
+}) {
   return (
     <label className="flex flex-col gap-2">
+
       <span className="flex items-baseline justify-between">
+
         <span className="text-[13.5px] font-medium text-white/70">
           {label}
         </span>
@@ -60,26 +84,41 @@ function Field({ label, hint, children }) {
             {hint}
           </span>
         )}
+
       </span>
 
       {children}
+
     </label>
   );
 }
 
+
 const inputClass =
   "w-full rounded-xl border border-white/[0.1] bg-white/[0.035] px-4 py-3 text-[14.5px] text-white placeholder:text-white/25 outline-none transition-all focus:border-[#FF5A36]/60 focus:bg-white/[0.055] focus:ring-1 focus:ring-[#FF5A36]/20";
 
-function Select({ value, onChange, options, placeholder }) {
+
+function Select({
+  value,
+  onChange,
+  options,
+  placeholder,
+}) {
   return (
     <div className="relative">
+
       <select
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) =>
+          onChange(e.target.value)
+        }
         className={`${inputClass} appearance-none pr-10 ${
-          value ? "text-white" : "text-white/30"
+          value
+            ? "text-white"
+            : "text-white/30"
         }`}
       >
+
         <option
           value=""
           disabled
@@ -97,6 +136,7 @@ function Select({ value, onChange, options, placeholder }) {
             {option.label}
           </option>
         ))}
+
       </select>
 
       <ChevronDown
@@ -104,9 +144,11 @@ function Select({ value, onChange, options, placeholder }) {
         strokeWidth={1.75}
         className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-white/30"
       />
+
     </div>
   );
 }
+
 
 function SegmentedControl({
   options,
@@ -118,17 +160,23 @@ function SegmentedControl({
     <div
       className="grid gap-2.5"
       style={{
-        gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
+        gridTemplateColumns:
+          `repeat(${columns}, minmax(0, 1fr))`,
       }}
     >
+
       {options.map((option) => {
-        const active = value === option.value;
+
+        const active =
+          value === option.value;
 
         return (
           <button
             key={option.value}
             type="button"
-            onClick={() => onChange(option.value)}
+            onClick={() =>
+              onChange(option.value)
+            }
             className={`rounded-xl border px-3 py-3 text-[13.5px] font-medium transition-all duration-200 ${
               active
                 ? "border-[#FF5A36]/50 bg-[#FF5A36]/[0.12] text-[#FF7A5C] ring-1 ring-[#FF5A36]/20"
@@ -138,10 +186,13 @@ function SegmentedControl({
             {option.label}
           </button>
         );
+
       })}
+
     </div>
   );
 }
+
 
 /* ------------------------------------------------------------------ */
 /* Assessment configuration                                           */
@@ -152,6 +203,7 @@ const STEPS = [
   "AI Assessment",
   "Hospital Match",
 ];
+
 
 const GENDER_OPTIONS = [
   {
@@ -167,6 +219,7 @@ const GENDER_OPTIONS = [
     label: "Other",
   },
 ];
+
 
 const CONSCIOUSNESS_OPTIONS = [
   {
@@ -187,6 +240,7 @@ const CONSCIOUSNESS_OPTIONS = [
   },
 ];
 
+
 const BREATHING_OPTIONS = [
   {
     value: "normal",
@@ -206,80 +260,237 @@ const BREATHING_OPTIONS = [
   },
 ];
 
-/*
- * Arrival-mode values come from the training dataset:
- *
- * 1 = Walking
- * 2 = Public Ambulance
- * 3 = Private Vehicle
- * 4 = Private Ambulance
- * 5-7 = Other
- *
- * UI simplifies this into:
- *
- * Self-arrival = 3
- * Ambulance    = 2
- */
 
 const ARRIVAL_MODE = {
   SELF: "SELF",
   AMBULANCE: "AMBULANCE",
 };
 
+
 const ARRIVAL_MODE_MODEL_VALUES = {
   SELF: 3,
   AMBULANCE: 2,
 };
+
+
+/* ------------------------------------------------------------------ */
+/* Wearable vital card                                                */
+/* ------------------------------------------------------------------ */
+
+function WearableVitalCard({
+  icon: Icon,
+  label,
+  value,
+  unit,
+}) {
+  return (
+    <div className="rounded-xl border border-[#FF5A36]/20 bg-[#FF5A36]/[0.045] p-4">
+
+      <div className="flex items-center gap-2 mb-2">
+
+        <Icon
+          size={15}
+          strokeWidth={1.8}
+          className="text-[#FF7A5C]"
+        />
+
+        <span className="text-[12px] text-white/45">
+          {label}
+        </span>
+
+      </div>
+
+      <div className="flex items-baseline gap-1.5">
+
+        <span className="font-mono text-xl font-medium text-white">
+          {value}
+        </span>
+
+        <span className="text-[11px] text-white/35">
+          {unit}
+        </span>
+
+      </div>
+
+      <div className="mt-2 text-[10.5px] font-mono uppercase tracking-wide text-[#FF7A5C]/70">
+        Wearable
+      </div>
+
+    </div>
+  );
+}
+
 
 /* ------------------------------------------------------------------ */
 /* Assessment page                                                    */
 /* ------------------------------------------------------------------ */
 
 export default function Assessment() {
+
   const {
     formData,
     errors,
     handleChange,
     submitForm,
+    patientProfile,
+    profileLoading,
+    wearableVitals,
   } = usePatientForm();
 
-  const [gender, setGender] = useState("");
-  const [symptoms, setSymptoms] = useState("");
 
-  const [pain, setPain] = useState(0);
+  const [gender, setGender] =
+    useState("");
 
-  const [arrivalMode, setArrivalMode] = useState("");
+  const [symptoms, setSymptoms] =
+    useState("");
 
-  const [consciousness, setConsciousness] = useState("");
-  const [breathing, setBreathing] = useState("");
+  const [pain, setPain] =
+    useState(0);
 
-  const [hasVitals, setHasVitals] = useState(false);
+  const [arrivalMode, setArrivalMode] =
+    useState("");
 
-  const [hasInjury, setHasInjury] = useState(false);
+  const [consciousness, setConsciousness] =
+    useState("");
 
-  const [allergies, setAllergies] = useState("");
-  const [conditions, setConditions] = useState("");
+  const [breathing, setBreathing] =
+    useState("");
+
+  const [hasVitals, setHasVitals] =
+    useState(false);
+
+  const [hasInjury, setHasInjury] =
+    useState(false);
+
+  const [allergies, setAllergies] =
+    useState("");
+
+  const [conditions, setConditions] =
+    useState("");
+
+  const [medicalHistory, setMedicalHistory] =
+    useState("");
+
+
+  /* -------------------------------------------------------------- */
+  /* Load saved profile information                                 */
+  /* -------------------------------------------------------------- */
+
+  useEffect(() => {
+
+    if (!patientProfile) {
+      return;
+    }
+
+
+    if (patientProfile.gender) {
+      setGender(
+        patientProfile.gender
+      );
+    }
+
+
+    if (
+      Array.isArray(
+        patientProfile.allergies
+      )
+    ) {
+      setAllergies(
+        patientProfile.allergies.join(", ")
+      );
+    }
+
+
+    if (
+      Array.isArray(
+        patientProfile.medical_conditions
+      )
+    ) {
+      setConditions(
+        patientProfile.medical_conditions.join(", ")
+      );
+    }
+
+
+    if (
+      patientProfile.medical_history
+    ) {
+      setMedicalHistory(
+        patientProfile.medical_history
+      );
+    }
+
+  }, [patientProfile]);
+
+
+  /* -------------------------------------------------------------- */
+  /* Wearable state                                                 */
+  /* -------------------------------------------------------------- */
+
+  useEffect(() => {
+
+    if (!wearableVitals) {
+      return;
+    }
+
+    setHasVitals(true);
+
+  }, [wearableVitals]);
+
 
   const isAmbulance =
-    arrivalMode === ARRIVAL_MODE.AMBULANCE;
+    arrivalMode ===
+    ARRIVAL_MODE.AMBULANCE;
+
 
   const isSelfArrival =
-    arrivalMode === ARRIVAL_MODE.SELF;
+    arrivalMode ===
+    ARRIVAL_MODE.SELF;
+
 
   /* -------------------------------------------------------------- */
   /* Helpers                                                        */
   /* -------------------------------------------------------------- */
 
   const clearVitals = () => {
-    handleChange("sbp", null);
-    handleChange("dbp", null);
-    handleChange("hr", null);
-    handleChange("rr", null);
-    handleChange("bt", null);
-    handleChange("saturation", null);
+
+    handleChange(
+      "sbp",
+      null
+    );
+
+    handleChange(
+      "dbp",
+      null
+    );
+
+    handleChange(
+      "hr",
+      null
+    );
+
+    handleChange(
+      "rr",
+      null
+    );
+
+    handleChange(
+      "bt",
+      null
+    );
+
+    handleChange(
+      "saturation",
+      null
+    );
+
   };
 
-  const handleArrivalChange = (value) => {
+
+  const handleArrivalChange = (
+    value
+  ) => {
+
     setArrivalMode(value);
 
     handleChange(
@@ -287,63 +498,112 @@ export default function Assessment() {
       ARRIVAL_MODE_MODEL_VALUES[value]
     );
 
-    if (value === ARRIVAL_MODE.SELF) {
-      setHasVitals(false);
 
-      clearVitals();
+    if (
+      value ===
+      ARRIVAL_MODE.SELF
+    ) {
 
-      handleChange(
-        "saturation_missing",
-        1
-      );
+      /*
+       * Keep wearable vitals when
+       * the patient is wearing the device.
+       */
+
+      if (!wearableVitals) {
+
+        setHasVitals(false);
+
+        clearVitals();
+
+        handleChange(
+          "saturation_missing",
+          1
+        );
+
+      }
+
     }
 
-    if (value === ARRIVAL_MODE.AMBULANCE) {
+
+    if (
+      value ===
+      ARRIVAL_MODE.AMBULANCE
+    ) {
+
       setHasVitals(true);
 
       handleChange(
         "saturation_missing",
         0
       );
+
     }
+
   };
 
-  const handleGenderChange = (value) => {
+
+  const handleGenderChange = (
+    value
+  ) => {
+
     setGender(value);
 
+
     /*
-     * IMPORTANT:
-     * The trained dataset uses:
+     * Training dataset:
      *
-     * 1 = Female
-     * 2 = Male
-     *
-     * We do NOT invent a new numeric value for "Other"
-     * because that would be outside the model's training data.
-     *
-     * Other therefore falls back to Female's encoded value
-     * rather than sending an unsupported value to the model.
+     * Female = 1
+     * Male   = 2
      */
-    if (value === "male") {
-      handleChange("sex", 2);
+
+    if (
+      value === "male"
+    ) {
+
+      handleChange(
+        "sex",
+        2
+      );
+
     } else {
-      handleChange("sex", 1);
+
+      handleChange(
+        "sex",
+        1
+      );
+
     }
+
   };
 
-  const handlePainChange = (value) => {
+
+  const handlePainChange = (
+    value
+  ) => {
+
     setPain(value);
 
-    handleChange("nrs_pain", value);
+    handleChange(
+      "nrs_pain",
+      value
+    );
 
     handleChange(
       "pain",
-      value > 0 ? 1 : 0
+      value > 0
+        ? 1
+        : 0
     );
+
   };
 
-  const handleConsciousnessChange = (value) => {
+
+  const handleConsciousnessChange = (
+    value
+  ) => {
+
     setConsciousness(value);
+
 
     const mentalMap = {
       alert: 1,
@@ -352,23 +612,38 @@ export default function Assessment() {
       unresponsive: 4,
     };
 
+
     handleChange(
       "mental",
       mentalMap[value]
     );
+
   };
 
-  const handleVitalChange = (field, value) => {
+
+  const handleVitalChange = (
+    field,
+    value
+  ) => {
+
     if (value === "") {
-      handleChange(field, null);
+
+      handleChange(
+        field,
+        null
+      );
+
       return;
     }
+
 
     handleChange(
       field,
       Number(value)
     );
+
   };
+
 
   /* -------------------------------------------------------------- */
   /* Submit                                                         */
@@ -377,6 +652,31 @@ export default function Assessment() {
   const handleSubmit = async () => {
     await submitForm();
   };
+
+
+  /* -------------------------------------------------------------- */
+  /* Loading                                                        */
+  /* -------------------------------------------------------------- */
+
+  if (profileLoading) {
+
+    return (
+      <div className="min-h-screen bg-[#0B0D12] text-white flex items-center justify-center">
+
+        <div className="text-center">
+
+          <div className="h-8 w-8 mx-auto rounded-full border-2 border-white/10 border-t-[#FF5A36] animate-spin" />
+
+          <p className="text-sm text-white/45 mt-4">
+            Loading patient information...
+          </p>
+
+        </div>
+
+      </div>
+    );
+  }
+
 
   return (
     <div className="min-h-screen bg-[#0B0D12] pb-28 text-white">
@@ -396,6 +696,7 @@ export default function Assessment() {
             fill="none"
             aria-hidden="true"
           >
+
             <circle
               cx="4"
               cy="21"
@@ -417,6 +718,7 @@ export default function Assessment() {
               strokeLinecap="round"
               strokeDasharray="1 4.2"
             />
+
           </svg>
 
           <span className="font-display font-semibold text-[16px] text-white tracking-tightest">
@@ -431,6 +733,7 @@ export default function Assessment() {
 
       </header>
 
+
       {/* ========================================================== */}
       {/* PROGRESS                                                   */}
       {/* ========================================================== */}
@@ -441,53 +744,59 @@ export default function Assessment() {
 
           <div className="flex items-center">
 
-            {STEPS.map((step, index) => {
+            {STEPS.map(
+              (step, index) => {
 
-              const active = index === 0;
+                const active =
+                  index === 0;
 
-              return (
-                <div
-                  key={step}
-                  className="flex items-center flex-1 last:flex-none"
-                >
+                return (
+                  <div
+                    key={step}
+                    className="flex items-center flex-1 last:flex-none"
+                  >
 
-                  <div className="flex items-center gap-2.5">
+                    <div className="flex items-center gap-2.5">
 
-                    <span
-                      className={`flex items-center justify-center h-6 w-6 rounded-full border font-mono text-[11px] shrink-0 ${
-                        active
-                          ? "border-[#FF5A36] bg-[#FF5A36] text-white"
-                          : "border-white/15 text-white/30"
-                      }`}
-                    >
-                      {index + 1}
-                    </span>
+                      <span
+                        className={`flex items-center justify-center h-6 w-6 rounded-full border font-mono text-[11px] shrink-0 ${
+                          active
+                            ? "border-[#FF5A36] bg-[#FF5A36] text-white"
+                            : "border-white/15 text-white/30"
+                        }`}
+                      >
+                        {index + 1}
+                      </span>
 
-                    <span
-                      className={`text-[13px] font-medium hidden sm:inline whitespace-nowrap ${
-                        active
-                          ? "text-white"
-                          : "text-white/30"
-                      }`}
-                    >
-                      {step}
-                    </span>
+                      <span
+                        className={`text-[13px] font-medium hidden sm:inline whitespace-nowrap ${
+                          active
+                            ? "text-white"
+                            : "text-white/30"
+                        }`}
+                      >
+                        {step}
+                      </span>
+
+                    </div>
+
+                    {index <
+                      STEPS.length - 1 && (
+                      <span className="flex-1 h-px bg-white/10 mx-3" />
+                    )}
 
                   </div>
+                );
 
-                  {index < STEPS.length - 1 && (
-                    <span className="flex-1 h-px bg-white/10 mx-3" />
-                  )}
-
-                </div>
-              );
-            })}
+              }
+            )}
 
           </div>
 
         </div>
 
       </div>
+
 
       {/* ========================================================== */}
       {/* MAIN                                                       */}
@@ -519,6 +828,7 @@ export default function Assessment() {
           </p>
 
         </div>
+
 
         <div className="flex flex-col gap-6">
 
@@ -558,11 +868,13 @@ export default function Assessment() {
                         ? ""
                         : Number(value)
                     );
+
                   }}
                   className={inputClass}
                 />
 
               </Field>
+
 
               {/* Gender */}
 
@@ -571,7 +883,9 @@ export default function Assessment() {
                 <SegmentedControl
                   options={GENDER_OPTIONS}
                   value={gender}
-                  onChange={handleGenderChange}
+                  onChange={
+                    handleGenderChange
+                  }
                   columns={3}
                 />
 
@@ -579,9 +893,8 @@ export default function Assessment() {
 
             </div>
 
-            {/* ---------------------------------------------------- */}
-            {/* Arrival mode                                          */}
-            {/* ---------------------------------------------------- */}
+
+            {/* Arrival mode */}
 
             <div className="mt-8">
 
@@ -596,6 +909,7 @@ export default function Assessment() {
                 </p>
 
               </div>
+
 
               <div className="grid md:grid-cols-2 gap-4">
 
@@ -624,10 +938,12 @@ export default function Assessment() {
                           : "bg-white/[0.06] text-white/60"
                       }`}
                     >
+
                       <Car
                         size={20}
                         strokeWidth={1.8}
                       />
+
                     </div>
 
                     <div>
@@ -645,6 +961,7 @@ export default function Assessment() {
                   </div>
 
                 </button>
+
 
                 {/* Ambulance */}
 
@@ -671,10 +988,12 @@ export default function Assessment() {
                           : "bg-white/[0.06] text-white/60"
                       }`}
                     >
+
                       <Ambulance
                         size={20}
                         strokeWidth={1.8}
                       />
+
                     </div>
 
                     <div>
@@ -699,8 +1018,9 @@ export default function Assessment() {
 
           </Card>
 
+
           {/* ====================================================== */}
-          {/* SYMPTOMS                                                */}
+          {/* SYMPTOMS                                               */}
           {/* ====================================================== */}
 
           <Card
@@ -730,6 +1050,7 @@ export default function Assessment() {
                     "chief_complain",
                     value
                   );
+
                 }}
                 className={`${inputClass} resize-none`}
               />
@@ -738,8 +1059,9 @@ export default function Assessment() {
 
           </Card>
 
+
           {/* ====================================================== */}
-          {/* CONDITION                                               */}
+          {/* CURRENT CONDITION                                      */}
           {/* ====================================================== */}
 
           <Card
@@ -768,7 +1090,9 @@ export default function Assessment() {
                       key={number}
                       type="button"
                       onClick={() =>
-                        handlePainChange(number)
+                        handlePainChange(
+                          number
+                        )
                       }
                       aria-label={`Pain level ${number}`}
                       className={`flex-1 rounded-lg py-2.5 text-[12px] font-mono transition-all duration-150 ${
@@ -787,6 +1111,7 @@ export default function Assessment() {
                 </div>
 
               </Field>
+
 
               {/* Consciousness + Breathing */}
 
@@ -807,12 +1132,17 @@ export default function Assessment() {
 
                 </Field>
 
+
                 <Field label="Breathing">
 
                   <Select
                     value={breathing}
-                    onChange={setBreathing}
-                    options={BREATHING_OPTIONS}
+                    onChange={
+                      setBreathing
+                    }
+                    options={
+                      BREATHING_OPTIONS
+                    }
                     placeholder="Select a pattern"
                   />
 
@@ -824,139 +1154,212 @@ export default function Assessment() {
 
           </Card>
 
+
           {/* ====================================================== */}
-          {/* VITALS                                                  */}
+          {/* VITALS                                                 */}
           {/* ====================================================== */}
 
           <Card
             icon={Activity}
             title="Vitals"
             subtitle={
-              isAmbulance
-                ? "Enter the patient's measured vital signs"
-                : "Only enter these if you have measured values"
+              wearableVitals
+                ? "Latest readings from your LifeRoute wearable"
+                : isAmbulance
+                  ? "Enter the patient's measured vital signs"
+                  : "Only enter these if you have measured values"
             }
           >
 
-            {isSelfArrival && !hasVitals && (
+            {/* ---------------------------------------------------- */}
+            {/* Wearable status                                      */}
+            {/* ---------------------------------------------------- */}
 
-              <div className="rounded-2xl border border-white/[0.08] bg-white/[0.035] p-5">
+            {wearableVitals && (
 
-                <div className="mb-4">
+              <div className="mb-6">
 
-                  <h3 className="font-display font-semibold text-[15px] text-white">
-                    Do you have measured vital signs?
-                  </h3>
+                <div className="flex items-center justify-between gap-4 rounded-2xl border border-[#FF5A36]/25 bg-[#FF5A36]/[0.055] px-5 py-4">
 
-                  <p className="text-[13px] text-white/35 mt-1">
-                    If you don't have them, that's okay. LifeRoute
-                    can continue using the information you know.
-                  </p>
+                  <div className="flex items-center gap-3">
+
+                    <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-[#FF5A36]/10">
+
+                      <Watch
+                        size={19}
+                        strokeWidth={1.8}
+                        className="text-[#FF7A5C]"
+                      />
+
+                    </div>
+
+                    <div>
+
+                      <div className="flex items-center gap-2">
+
+                        <span className="font-display font-semibold text-[14px] text-white">
+                          Wearable connected
+                        </span>
+
+                        <span className="flex items-center gap-1 text-[10px] font-mono uppercase tracking-wide text-[#FF7A5C]">
+
+                          <Wifi size={10} />
+
+                          Live
+
+                        </span>
+
+                      </div>
+
+                      <p className="text-[12px] text-white/35 mt-0.5">
+                        Latest readings are being refreshed automatically.
+                      </p>
+
+                    </div>
+
+                  </div>
 
                 </div>
 
-                <div className="grid sm:grid-cols-2 gap-3">
 
-                  {/* YES */}
+                {/* Wearable readings */}
 
-                  <button
-                    type="button"
-                    onClick={() => {
+                <div className="grid sm:grid-cols-2 gap-4 mt-4">
 
-                      setHasVitals(true);
+                  {wearableVitals.heart_rate !== null &&
+                    wearableVitals.heart_rate !== undefined && (
 
-                      handleChange(
-                        "saturation_missing",
-                        0
-                      );
-                    }}
-                    className={`rounded-xl border px-4 py-3 text-[13.5px] font-medium transition-all duration-200 ${
-                      hasVitals
-                        ? "border-[#FF5A36]/50 bg-[#FF5A36]/[0.08] text-[#FF7A5C] ring-1 ring-[#FF5A36]/20"
-                        : "border-white/[0.1] bg-white/[0.035] text-white/65 hover:border-[#FF5A36]/40 hover:bg-white/[0.05]"
-                    }`}
-                  >
+                      <WearableVitalCard
+                        icon={HeartPulse}
+                        label="Heart rate"
+                        value={
+                          wearableVitals.heart_rate
+                        }
+                        unit="bpm"
+                      />
 
-                    <span className="flex items-center justify-center gap-2">
+                    )}
 
-                      {hasVitals && (
-                        <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#FF5A36] text-white text-[10px]">
-                          ✓
-                        </span>
-                      )}
 
-                      Yes, I have them
+                  {wearableVitals.spo2 !== null &&
+                    wearableVitals.spo2 !== undefined && (
 
-                    </span>
+                      <WearableVitalCard
+                        icon={Activity}
+                        label="Oxygen saturation"
+                        value={
+                          wearableVitals.spo2
+                        }
+                        unit="%"
+                      />
 
-                  </button>
-
-                  {/* NO */}
-
-                  <button
-                    type="button"
-                    onClick={() => {
-
-                      setHasVitals(false);
-
-                      clearVitals();
-
-                      handleChange(
-                        "saturation_missing",
-                        1
-                      );
-                    }}
-                    className={`rounded-xl border px-4 py-3 text-[13.5px] font-medium transition-all duration-200 ${
-                      !hasVitals
-                        ? "border-[#FF5A36]/50 bg-[#FF5A36]/[0.08] text-[#FF7A5C] ring-1 ring-[#FF5A36]/20"
-                        : "border-white/[0.1] bg-white/[0.035] text-white/65 hover:border-[#FF5A36]/40 hover:bg-white/[0.05]"
-                    }`}
-                  >
-
-                    <span className="flex items-center justify-center gap-2">
-
-                      {!hasVitals && (
-                        <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#FF5A36] text-white text-[10px]">
-                          ✓
-                        </span>
-                      )}
-
-                      No, I don't
-
-                    </span>
-
-                  </button>
+                    )}
 
                 </div>
 
-              </div>
 
-            )}
-
-            {isSelfArrival && !hasVitals && (
-
-              <div className="mt-4 rounded-xl border border-[#FF5A36]/20 bg-[#FF5A36]/[0.04] px-4 py-3">
-
-                <p className="text-[13px] text-white/45">
-                  No problem. You can continue without measured
-                  vital signs.
+                <p className="text-[11.5px] text-white/25 mt-3">
+                  These values are captured by the wearable and
+                  refreshed automatically.
                 </p>
 
               </div>
 
             )}
 
-            {(isAmbulance || hasVitals) && (
 
-              <div className="flex flex-col gap-5">
+            {/* ---------------------------------------------------- */}
+            {/* No wearable                                           */}
+            {/* ---------------------------------------------------- */}
 
-                {isSelfArrival && hasVitals && (
+            {!wearableVitals && (
 
-                  <div className="flex items-center justify-between rounded-xl border border-[#FF5A36]/20 bg-[#FF5A36]/[0.04] px-4 py-3">
+              <div className="mb-5 rounded-xl border border-white/[0.08] bg-white/[0.025] px-4 py-3">
 
-                    <p className="text-[13px] text-white/45">
-                      Measured vital signs
+                <div className="flex items-center gap-2">
+
+                  <Watch
+                    size={15}
+                    strokeWidth={1.7}
+                    className="text-white/30"
+                  />
+
+                  <p className="text-[12.5px] text-white/40">
+                    No usable wearable reading available.
+                    You can enter measured vital signs manually.
+                  </p>
+
+                </div>
+
+              </div>
+
+            )}
+
+
+            {/* ---------------------------------------------------- */}
+            {/* Self-arrival without vitals                           */}
+            {/* ---------------------------------------------------- */}
+
+            {isSelfArrival &&
+              !hasVitals &&
+              !wearableVitals && (
+
+                <div className="rounded-2xl border border-white/[0.08] bg-white/[0.035] p-5">
+
+                  <div className="mb-4">
+
+                    <h3 className="font-display font-semibold text-[15px] text-white">
+                      Do you have measured vital signs?
+                    </h3>
+
+                    <p className="text-[13px] text-white/35 mt-1">
+                      If you don't have them, that's okay.
+                      LifeRoute can continue using the information
+                      you know.
                     </p>
+
+                  </div>
+
+
+                  <div className="grid sm:grid-cols-2 gap-3">
+
+                    {/* YES */}
+
+                    <button
+                      type="button"
+                      onClick={() => {
+
+                        setHasVitals(true);
+
+                        handleChange(
+                          "saturation_missing",
+                          0
+                        );
+
+                      }}
+                      className={`rounded-xl border px-4 py-3 text-[13.5px] font-medium transition-all duration-200 ${
+                        hasVitals
+                          ? "border-[#FF5A36]/50 bg-[#FF5A36]/[0.08] text-[#FF7A5C] ring-1 ring-[#FF5A36]/20"
+                          : "border-white/[0.1] bg-white/[0.035] text-white/65 hover:border-[#FF5A36]/40 hover:bg-white/[0.05]"
+                      }`}
+                    >
+
+                      <span className="flex items-center justify-center gap-2">
+
+                        {hasVitals && (
+                          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#FF5A36] text-white text-[10px]">
+                            ✓
+                          </span>
+                        )}
+
+                        Yes, I have them
+
+                      </span>
+
+                    </button>
+
+
+                    {/* NO */}
 
                     <button
                       type="button"
@@ -970,15 +1373,95 @@ export default function Assessment() {
                           "saturation_missing",
                           1
                         );
+
                       }}
-                      className="text-[12px] font-medium text-[#FF7A5C] hover:text-[#FF8B70] hover:underline"
+                      className={`rounded-xl border px-4 py-3 text-[13.5px] font-medium transition-all duration-200 ${
+                        !hasVitals
+                          ? "border-[#FF5A36]/50 bg-[#FF5A36]/[0.08] text-[#FF7A5C] ring-1 ring-[#FF5A36]/20"
+                          : "border-white/[0.1] bg-white/[0.035] text-white/65 hover:border-[#FF5A36]/40 hover:bg-white/[0.05]"
+                      }`}
                     >
-                      Remove
+
+                      <span className="flex items-center justify-center gap-2">
+
+                        {!hasVitals && (
+                          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#FF5A36] text-white text-[10px]">
+                            ✓
+                          </span>
+                        )}
+
+                        No, I don't
+
+                      </span>
+
                     </button>
 
                   </div>
 
-                )}
+                </div>
+
+              )}
+
+
+            {isSelfArrival &&
+              !hasVitals &&
+              !wearableVitals && (
+
+                <div className="mt-4 rounded-xl border border-[#FF5A36]/20 bg-[#FF5A36]/[0.04] px-4 py-3">
+
+                  <p className="text-[13px] text-white/45">
+                    No problem. You can continue without measured
+                    vital signs.
+                  </p>
+
+                </div>
+
+              )}
+
+
+            {/* ---------------------------------------------------- */}
+            {/* Manual / remaining vitals                             */}
+            {/* ---------------------------------------------------- */}
+
+            {(isAmbulance ||
+              hasVitals ||
+              wearableVitals) && (
+
+              <div className="flex flex-col gap-5">
+
+                {isSelfArrival &&
+                  hasVitals &&
+                  !wearableVitals && (
+
+                    <div className="flex items-center justify-between rounded-xl border border-[#FF5A36]/20 bg-[#FF5A36]/[0.04] px-4 py-3">
+
+                      <p className="text-[13px] text-white/45">
+                        Measured vital signs
+                      </p>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+
+                          setHasVitals(false);
+
+                          clearVitals();
+
+                          handleChange(
+                            "saturation_missing",
+                            1
+                          );
+
+                        }}
+                        className="text-[12px] font-medium text-[#FF7A5C] hover:text-[#FF8B70] hover:underline"
+                      >
+                        Remove
+                      </button>
+
+                    </div>
+
+                  )}
+
 
                 <div className="grid md:grid-cols-3 gap-5">
 
@@ -1009,12 +1492,27 @@ export default function Assessment() {
                             event.target.value
                           )
                         }
-                        className={`${inputClass} pl-10`}
+                        className={`${inputClass} ${
+                          wearableVitals?.heart_rate !== null &&
+                          wearableVitals?.heart_rate !== undefined
+                            ? "border-[#FF5A36]/25 bg-[#FF5A36]/[0.035]"
+                            : ""
+                        } pl-10`}
                       />
 
                     </div>
 
+                    {wearableVitals?.heart_rate !== null &&
+                      wearableVitals?.heart_rate !== undefined && (
+
+                        <span className="text-[10.5px] text-[#FF7A5C]/70">
+                          Pre-filled from wearable
+                        </span>
+
+                      )}
+
                   </Field>
+
 
                   {/* Respiratory rate */}
 
@@ -1039,6 +1537,7 @@ export default function Assessment() {
                     />
 
                   </Field>
+
 
                   {/* Temperature */}
 
@@ -1076,6 +1575,7 @@ export default function Assessment() {
                   </Field>
 
                 </div>
+
 
                 <div className="grid md:grid-cols-2 gap-5">
 
@@ -1126,6 +1626,7 @@ export default function Assessment() {
 
                   </Field>
 
+
                   {/* Oxygen */}
 
                   <Field
@@ -1147,8 +1648,22 @@ export default function Assessment() {
                           event.target.value
                         )
                       }
-                      className={inputClass}
+                      className={`${inputClass} ${
+                        wearableVitals?.spo2 !== null &&
+                        wearableVitals?.spo2 !== undefined
+                          ? "border-[#FF5A36]/25 bg-[#FF5A36]/[0.035]"
+                          : ""
+                      }`}
                     />
+
+                    {wearableVitals?.spo2 !== null &&
+                      wearableVitals?.spo2 !== undefined && (
+
+                        <span className="text-[10.5px] text-[#FF7A5C]/70">
+                          Pre-filled from wearable
+                        </span>
+
+                      )}
 
                   </Field>
 
@@ -1159,6 +1674,7 @@ export default function Assessment() {
             )}
 
           </Card>
+
 
           {/* ====================================================== */}
           {/* INJURY & HISTORY                                       */}
@@ -1184,12 +1700,17 @@ export default function Assessment() {
                     const checked =
                       event.target.checked;
 
-                    setHasInjury(checked);
+                    setHasInjury(
+                      checked
+                    );
 
                     handleChange(
                       "injury",
-                      checked ? 2 : 1
+                      checked
+                        ? 2
+                        : 1
                     );
+
                   }}
                   className="h-4.5 w-4.5 rounded-md border-white/20 text-[#FF5A36] accent-[#FF5A36]"
                 />
@@ -1200,9 +1721,17 @@ export default function Assessment() {
 
               </label>
 
+
               {/* Allergies */}
 
-              <Field label="Allergies">
+              <Field
+                label="Allergies"
+                hint={
+                  patientProfile?.allergies?.length
+                    ? "Saved profile"
+                    : "Optional"
+                }
+              >
 
                 <input
                   type="text"
@@ -1218,9 +1747,17 @@ export default function Assessment() {
 
               </Field>
 
+
               {/* Existing conditions */}
 
-              <Field label="Existing conditions">
+              <Field
+                label="Existing conditions"
+                hint={
+                  patientProfile?.medical_conditions?.length
+                    ? "Saved profile"
+                    : "Optional"
+                }
+              >
 
                 <input
                   type="text"
@@ -1236,14 +1773,58 @@ export default function Assessment() {
 
               </Field>
 
+
+              {/* Medical history */}
+
+              <Field
+                label="Medical history"
+                hint={
+                  patientProfile?.medical_history
+                    ? "Saved profile"
+                    : "Optional"
+                }
+              >
+
+                <textarea
+                  rows={4}
+                  placeholder="Previous surgeries, major illnesses, hospitalizations, or anything important responders should know..."
+                  value={medicalHistory}
+                  onChange={(event) =>
+                    setMedicalHistory(
+                      event.target.value
+                    )
+                  }
+                  className={`${inputClass} resize-none`}
+                />
+
+              </Field>
+
+
+              {/* Profile notice */}
+
+              {patientProfile && (
+
+                <div className="rounded-xl border border-white/[0.08] bg-white/[0.025] px-4 py-3">
+
+                  <p className="text-[12px] text-white/35">
+                    Saved profile information has been
+                    pre-filled where available. You can
+                    change any field for this assessment.
+                  </p>
+
+                </div>
+
+              )}
+
             </div>
 
           </Card>
 
         </div>
 
+
         {/* ======================================================== */}
-        {/* CONTINUE                                                  */}
+        {/* CONTINUE                                                 */}
         {/* ======================================================== */}
 
         <div className="mt-8 flex flex-col sm:flex-row items-center gap-4">
@@ -1253,6 +1834,7 @@ export default function Assessment() {
             onClick={handleSubmit}
             className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-[#FF5A36] px-8 py-4 text-[15px] font-medium text-white transition-all duration-300 hover:bg-[#FF6B4A] active:scale-[0.98] shadow-[0_8px_24px_-8px_rgba(255,90,54,0.55)]"
           >
+
             Continue Assessment
 
             <ArrowUpRight

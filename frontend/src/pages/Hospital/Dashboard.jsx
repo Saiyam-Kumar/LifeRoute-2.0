@@ -10,15 +10,14 @@ import {
   Stethoscope,
   Syringe,
   Wind,
-  Network,
+  MapPin,
+  AlertTriangle,
   CheckCircle2,
-  Radio,
-  ArrowRight,
+  Navigation,
 } from "lucide-react";
 
 import { getMe } from "../../services/authService";
-
-const API_BASE_URL = "http://127.0.0.1:8000";
+import api from "../../services/api";
 
 function StatCard({
   icon: Icon,
@@ -62,7 +61,9 @@ function StatCard({
           {value}
         </p>
 
-        <p className="mt-1.5 text-xs text-white/25">{description}</p>
+        <p className="mt-1.5 text-xs text-white/25">
+          {description}
+        </p>
       </div>
     </div>
   );
@@ -97,11 +98,17 @@ function SectionCard({
 
 export default function Dashboard() {
   const [hospital, setHospital] = useState(null);
+  const [emergencies, setEmergencies] = useState([]);
+
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState("");
 
-  const fetchHospital = async (showRefresh = false) => {
+  const [emergencyLoading, setEmergencyLoading] = useState(true);
+
+  const [error, setError] = useState("");
+  const [emergencyError, setEmergencyError] = useState("");
+
+  const fetchDashboard = async (showRefresh = false) => {
     try {
       if (showRefresh) {
         setRefreshing(true);
@@ -113,7 +120,10 @@ export default function Dashboard() {
 
       const profile = await getMe();
 
-      console.log("Authenticated hospital profile:", profile);
+      console.log(
+        "Authenticated hospital profile:",
+        profile
+      );
 
       if (!profile?.hospital_id) {
         throw new Error(
@@ -121,27 +131,60 @@ export default function Dashboard() {
         );
       }
 
-      const response = await fetch(
-        `${API_BASE_URL}/hospital/${profile.hospital_id}`
+      const hospitalResponse = await api.get(
+        `/hospital/${profile.hospital_id}`
       );
 
-      if (!response.ok) {
-        throw new Error(
-          `Request failed with status ${response.status}`
-        );
-      }
+      const hospitalData =
+        hospitalResponse.data;
 
-      const data = await response.json();
-
-      if (!data || data.message === "Hospital not found") {
+      if (
+        !hospitalData ||
+        hospitalData.message ===
+          "Hospital not found"
+      ) {
         throw new Error(
           "Your hospital record could not be found."
         );
       }
 
-      setHospital(data);
+      setHospital(hospitalData);
+
+      // ----------------------------------------------
+      // Fetch emergencies assigned to this hospital
+      // ----------------------------------------------
+
+      try {
+        setEmergencyLoading(true);
+        setEmergencyError("");
+
+        const emergencyResponse =
+          await api.get(
+            `/emergency/hospital/${profile.hospital_id}`
+          );
+
+        setEmergencies(
+          emergencyResponse?.data?.emergencies ||
+            []
+        );
+      } catch (err) {
+        console.error(
+          "Emergency fetch error:",
+          err
+        );
+
+        setEmergencyError(
+          "Unable to load incoming emergencies."
+        );
+      } finally {
+        setEmergencyLoading(false);
+      }
+
     } catch (err) {
-      console.error("Hospital dashboard error:", err);
+      console.error(
+        "Hospital dashboard error:",
+        err
+      );
 
       setError(
         err.message ||
@@ -154,7 +197,7 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    fetchHospital();
+    fetchDashboard();
   }, []);
 
   if (loading) {
@@ -163,6 +206,7 @@ export default function Dashboard() {
         <div className="mx-auto max-w-7xl">
           <div className="animate-pulse">
             <div className="h-3 w-28 rounded bg-white/[0.06]" />
+
             <div className="mt-4 h-10 w-72 rounded bg-white/[0.06]" />
 
             <div className="mt-10 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
@@ -174,10 +218,7 @@ export default function Dashboard() {
               ))}
             </div>
 
-            <div className="mt-6 grid gap-6 lg:grid-cols-2">
-              <div className="h-80 rounded-2xl border border-white/[0.06] bg-white/[0.025]" />
-              <div className="h-80 rounded-2xl border border-white/[0.06] bg-white/[0.025]" />
-            </div>
+            <div className="mt-6 h-80 rounded-2xl border border-white/[0.06] bg-white/[0.025]" />
           </div>
         </div>
       </div>
@@ -203,7 +244,7 @@ export default function Dashboard() {
 
             <button
               type="button"
-              onClick={() => fetchHospital()}
+              onClick={() => fetchDashboard()}
               className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#FF5A36] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#ff6847]"
             >
               <RefreshCw size={15} />
@@ -217,12 +258,20 @@ export default function Dashboard() {
 
   const isOpen = hospital?.is_open;
 
-  const availableBeds = Number(hospital?.available_beds) || 0;
-  const availableIcu = Number(hospital?.available_icu) || 0;
-  const ventilators = Number(hospital?.ventilators) || 0;
+  const availableBeds =
+    Number(hospital?.available_beds) || 0;
 
-  const totalCriticalResources =
-    availableIcu + ventilators;
+  const availableIcu =
+    Number(hospital?.available_icu) || 0;
+
+  const ventilators =
+    Number(hospital?.ventilators) || 0;
+
+  const incomingEmergencies =
+    emergencies.filter(
+      (emergency) =>
+        emergency.status === "incoming"
+    );
 
   return (
     <div className="min-h-screen bg-[#0B0D12] px-6 py-8 lg:px-10 lg:py-10">
@@ -240,7 +289,7 @@ export default function Dashboard() {
               <span className="h-1 w-1 rounded-full bg-white/20" />
 
               <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-white/25">
-                Live Overview
+                Emergency Operations
               </span>
             </div>
 
@@ -249,7 +298,8 @@ export default function Dashboard() {
             </h1>
 
             <p className="mt-2 text-sm text-white/40">
-              Monitor your hospital's current capacity and emergency readiness.
+              Monitor hospital capacity and prepare for
+              LifeRoute emergency arrivals.
             </p>
           </div>
 
@@ -262,11 +312,11 @@ export default function Dashboard() {
               }`}
             >
               <span
-                className={`h-2 w-2 ${
+                className={`h-2 w-2 rounded-full ${
                   isOpen
                     ? "bg-emerald-400"
                     : "bg-red-400"
-                } rounded-full`}
+                }`}
               />
 
               <span
@@ -276,28 +326,99 @@ export default function Dashboard() {
                     : "text-red-300"
                 }`}
               >
-                {isOpen ? "Operational" : "Closed"}
+                {isOpen
+                  ? "Operational"
+                  : "Closed"}
               </span>
             </div>
 
             <button
               type="button"
-              onClick={() => fetchHospital(true)}
+              onClick={() => fetchDashboard(true)}
               disabled={refreshing}
               className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.025] text-white/40 transition hover:bg-white/[0.06] hover:text-white disabled:opacity-50"
               aria-label="Refresh hospital data"
             >
               <RefreshCw
                 size={16}
-                className={refreshing ? "animate-spin" : ""}
+                className={
+                  refreshing
+                    ? "animate-spin"
+                    : ""
+                }
               />
             </button>
           </div>
         </header>
 
+        {/* ====================================================== */}
+        {/* INCOMING EMERGENCIES                                   */}
+        {/* ====================================================== */}
+
+        <div className="mt-9">
+          <SectionCard
+            eyebrow="LifeRoute Emergency Network"
+            title="Incoming Emergencies"
+          >
+            {emergencyLoading ? (
+              <div className="animate-pulse space-y-4">
+                <div className="h-32 rounded-xl bg-white/[0.025]" />
+                <div className="h-32 rounded-xl bg-white/[0.025]" />
+              </div>
+            ) : emergencyError ? (
+              <div className="rounded-xl border border-red-400/10 bg-red-400/[0.04] p-5">
+                <div className="flex items-center gap-3">
+                  <CircleAlert
+                    size={18}
+                    className="text-red-400"
+                  />
+
+                  <p className="text-sm text-red-300">
+                    {emergencyError}
+                  </p>
+                </div>
+              </div>
+            ) : incomingEmergencies.length === 0 ? (
+              <div className="rounded-xl border border-white/[0.07] bg-white/[0.02] p-8 text-center">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-white/[0.04] text-white/30">
+                  <CheckCircle2 size={21} />
+                </div>
+
+                <p className="mt-4 text-sm font-medium text-white/60">
+                  No incoming emergencies
+                </p>
+
+                <p className="mt-1 text-xs text-white/30">
+                  LifeRoute emergency cases routed to this
+                  hospital will appear here.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-5">
+                {incomingEmergencies.map(
+                  (emergency) => (
+                    <EmergencyCard
+                      key={emergency.id}
+                      emergency={emergency}
+                    />
+                  )
+                )}
+              </div>
+            )}
+          </SectionCard>
+        </div>
+
         {/* CAPACITY STATS */}
 
-        <div className="mt-9 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <StatCard
+            icon={AlertTriangle}
+            label="Incoming Emergencies"
+            value={incomingEmergencies.length}
+            description="LifeRoute cases routed here"
+            accent="orange"
+          />
+
           <StatCard
             icon={BedDouble}
             label="Available Beds"
@@ -321,14 +442,6 @@ export default function Dashboard() {
             description="Ventilators currently available"
             accent="green"
           />
-
-          <StatCard
-            icon={CircleAlert}
-            label="Emergency Level"
-            value={hospital.emergency_level}
-            description={hospital.hospital_type}
-            accent="purple"
-          />
         </div>
 
         {/* CAPACITY + READINESS */}
@@ -345,21 +458,30 @@ export default function Dashboard() {
                 label="General Beds"
                 value={availableBeds}
                 icon={BedDouble}
-                max={Math.max(availableBeds, 100)}
+                max={Math.max(
+                  availableBeds,
+                  100
+                )}
               />
 
               <ResourceBar
                 label="ICU Beds"
                 value={availableIcu}
                 icon={HeartPulse}
-                max={Math.max(availableIcu, 25)}
+                max={Math.max(
+                  availableIcu,
+                  25
+                )}
               />
 
               <ResourceBar
                 label="Ventilators"
                 value={ventilators}
                 icon={Wind}
-                max={Math.max(ventilators, 15)}
+                max={Math.max(
+                  ventilators,
+                  15
+                )}
               />
 
             </div>
@@ -377,9 +499,10 @@ export default function Dashboard() {
                   </p>
 
                   <p className="mt-1 text-xs leading-5 text-white/35">
-                    These resource values are used by LifeRoute's hospital
-                    routing system when determining which facilities are best
-                    equipped for an emergency.
+                    These resource values are used by
+                    LifeRoute when determining which
+                    facilities are best equipped for an
+                    emergency.
                   </p>
                 </div>
               </div>
@@ -417,288 +540,24 @@ export default function Dashboard() {
               <InfoRow
                 icon={Stethoscope}
                 label="Specialists"
-                value={`${hospital.specialists?.length || 0} available`}
+                value={`${
+                  hospital.specialists?.length ||
+                  0
+                }`}
               />
 
               <InfoRow
                 icon={Syringe}
                 label="Resources"
-                value={`${hospital.resources?.length || 0} available`}
+                value={`${
+                  hospital.resources?.length ||
+                  0
+                }`}
               />
 
             </div>
           </SectionCard>
 
-        </div>
-
-        {/* ROUND 2 — NETWORK CONNECTION */}
-
-        <div className="mt-6">
-          <SectionCard
-            eyebrow="Live Network"
-            title="LifeRoute Emergency Network"
-          >
-            <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-
-              <div>
-                <div className="flex items-start gap-4">
-
-                  <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-emerald-400/15 bg-emerald-400/[0.07] text-emerald-400">
-                    <Network
-                      size={22}
-                      strokeWidth={1.7}
-                    />
-
-                    <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#11151D]">
-                      <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                    </span>
-                  </div>
-
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-display text-xl font-semibold tracking-tight text-white">
-                        Connected to LifeRoute
-                      </h3>
-
-                      <span className="rounded-full border border-emerald-400/10 bg-emerald-400/[0.06] px-2 py-1 text-[9px] font-medium uppercase tracking-wider text-emerald-300">
-                        Live
-                      </span>
-                    </div>
-
-                    <p className="mt-2 max-w-2xl text-sm leading-6 text-white/40">
-                      Your hospital's current capacity is available to
-                      LifeRoute's emergency recommendation engine. When a
-                      patient requires urgent care, the system can compare
-                      required resources with connected hospitals.
-                    </p>
-                  </div>
-
-                </div>
-
-                {/* Network flow */}
-
-                <div className="mt-7 grid items-center gap-2 sm:grid-cols-3">
-
-                  <NetworkStep
-                    icon={Activity}
-                    title="Patient Need"
-                    description="AI identifies required resources"
-                  />
-
-                  <div className="hidden justify-center sm:flex">
-                    <ArrowRight
-                      size={18}
-                      className="text-white/20"
-                    />
-                  </div>
-
-                  <NetworkStep
-                    icon={Network}
-                    title="Resource Match"
-                    description="LifeRoute checks hospital capacity"
-                  />
-
-                  <div className="hidden justify-center sm:flex">
-                    <ArrowRight
-                      size={18}
-                      className="text-white/20"
-                    />
-                  </div>
-
-                  <NetworkStep
-                    icon={HeartPulse}
-                    title="Hospital"
-                    description="Suitable emergency destination"
-                  />
-
-                </div>
-              </div>
-
-              {/* Live network status */}
-
-              <div className="rounded-2xl border border-white/[0.07] bg-black/10 p-5">
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-white/25">
-                      Current Network Status
-                    </p>
-
-                    <h3 className="mt-2 font-display text-lg font-semibold text-white">
-                      Resource Signal
-                    </h3>
-                  </div>
-
-                  <Radio
-                    size={18}
-                    className="text-emerald-400"
-                  />
-                </div>
-
-                <div className="mt-5 space-y-3">
-
-                  <NetworkMetric
-                    label="General Beds"
-                    value={availableBeds}
-                  />
-
-                  <NetworkMetric
-                    label="ICU Beds"
-                    value={availableIcu}
-                  />
-
-                  <NetworkMetric
-                    label="Ventilators"
-                    value={ventilators}
-                  />
-
-                </div>
-
-                <div className="mt-5 border-t border-white/[0.07] pt-4">
-
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2
-                      size={15}
-                      className="text-emerald-400"
-                    />
-
-                    <span className="text-xs font-medium text-emerald-300">
-                      Hospital is sharing live capacity
-                    </span>
-                  </div>
-
-                  <p className="mt-2 text-[11px] leading-5 text-white/30">
-                    Updating these values keeps emergency recommendations
-                    aligned with the hospital's current operational capacity.
-                  </p>
-
-                </div>
-              </div>
-
-            </div>
-          </SectionCard>
-        </div>
-
-        {/* BUSINESS MODEL */}
-
-        <div className="mt-6">
-          <SectionCard
-            eyebrow="Sustainable Access Model"
-            title="LifeRoute Hospital Plan"
-          >
-            <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-
-              <div>
-
-                <div className="flex items-start gap-4">
-
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-[#FF5A36]/15 bg-[#FF5A36]/[0.07] text-[#FF5A36]">
-                    <Network
-                      size={22}
-                      strokeWidth={1.7}
-                    />
-                  </div>
-
-                  <div>
-                    <h3 className="font-display text-xl font-semibold tracking-tight text-white">
-                      Hospital Network Subscription
-                    </h3>
-
-                    <p className="mt-2 max-w-2xl text-sm leading-6 text-white/40">
-                      Hospitals subscribe to the LifeRoute coordination
-                      infrastructure while emergency access remains free for
-                      patients.
-                    </p>
-                  </div>
-
-                </div>
-
-                <div className="mt-6 grid gap-3 sm:grid-cols-2">
-
-                  <PlanFeature
-                    icon={Activity}
-                    title="Resource Management"
-                    description="Maintain current hospital capacity and resource availability."
-                  />
-
-                  <PlanFeature
-                    icon={HeartPulse}
-                    title="Emergency Routing"
-                    description="Connect patients with hospitals suited to their requirements."
-                  />
-
-                  <PlanFeature
-                    icon={Network}
-                    title="Network Visibility"
-                    description="Become part of a connected emergency healthcare network."
-                  />
-
-                  <PlanFeature
-                    icon={Stethoscope}
-                    title="Future Resource Coordination"
-                    description="Designed to scale across beds, oxygen, blood, medicines and equipment."
-                  />
-
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-[#FF5A36]/15 bg-gradient-to-br from-[#FF5A36]/[0.08] via-white/[0.02] to-transparent p-5">
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-[#FF5A36]">
-                      Proposed Plan
-                    </p>
-
-                    <h3 className="mt-2 font-display text-lg font-semibold text-white">
-                      LifeRoute Hospital
-                    </h3>
-                  </div>
-
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#FF5A36]/[0.08] text-[#FF5A36]">
-                    <CheckCircle2 size={18} />
-                  </div>
-                </div>
-
-                <div className="mt-5 flex items-end gap-2">
-                  <span className="font-display text-4xl font-semibold tracking-tight text-white">
-                    ₹5,000
-                  </span>
-
-                  <span className="mb-1 text-xs text-white/30">
-                    / hospital / month
-                  </span>
-                </div>
-
-                <p className="mt-3 text-xs leading-5 text-white/35">
-                  Proposed affordable pricing for the LifeRoute hospital
-                  coordination platform.
-                </p>
-
-                <div className="mt-5 space-y-3 border-t border-white/[0.07] pt-5">
-
-                  <PlanCheck text="Live resource management" />
-                  <PlanCheck text="Emergency patient routing" />
-                  <PlanCheck text="Hospital network visibility" />
-                  <PlanCheck text="Resource and capacity analytics" />
-
-                </div>
-
-                <div className="mt-6 rounded-xl border border-white/[0.06] bg-black/10 px-4 py-3">
-                  <p className="text-[10px] uppercase tracking-[0.15em] text-white/20">
-                    Access Model
-                  </p>
-
-                  <p className="mt-1 text-xs text-white/45">
-                    Patients remain free to use LifeRoute for emergency
-                    assessment and hospital recommendation.
-                  </p>
-                </div>
-
-              </div>
-
-            </div>
-          </SectionCard>
         </div>
 
         {/* SPECIALISTS + RESOURCES */}
@@ -711,14 +570,16 @@ export default function Dashboard() {
           >
             <div className="flex flex-wrap gap-2">
 
-              {(hospital.specialists || []).map((specialist) => (
-                <span
-                  key={specialist}
-                  className="rounded-lg border border-white/[0.07] bg-white/[0.025] px-3 py-2 text-xs text-white/55 transition hover:border-white/[0.12] hover:bg-white/[0.045] hover:text-white/75"
-                >
-                  {specialist}
-                </span>
-              ))}
+              {(hospital.specialists || []).map(
+                (specialist) => (
+                  <span
+                    key={specialist}
+                    className="rounded-lg border border-white/[0.07] bg-white/[0.025] px-3 py-2 text-xs text-white/55 transition hover:border-white/[0.12] hover:bg-white/[0.045] hover:text-white/75"
+                  >
+                    {specialist}
+                  </span>
+                )
+              )}
 
             </div>
           </SectionCard>
@@ -729,18 +590,20 @@ export default function Dashboard() {
           >
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
 
-              {(hospital.resources || []).map((resource) => (
-                <div
-                  key={resource}
-                  className="flex items-center gap-2.5 rounded-lg border border-white/[0.07] bg-white/[0.025] px-3 py-2.5"
-                >
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#FF5A36]" />
+              {(hospital.resources || []).map(
+                (resource) => (
+                  <div
+                    key={resource}
+                    className="flex items-center gap-2.5 rounded-lg border border-white/[0.07] bg-white/[0.025] px-3 py-2.5"
+                  >
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#FF5A36]" />
 
-                  <span className="text-xs text-white/55">
-                    {resource}
-                  </span>
-                </div>
-              ))}
+                    <span className="text-xs text-white/55">
+                      {resource}
+                    </span>
+                  </div>
+                )
+              )}
 
             </div>
           </SectionCard>
@@ -760,7 +623,7 @@ export default function Dashboard() {
 
           <span className="flex items-center gap-2">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400/70" />
-            Connected to LifeRoute backend
+            Connected to LifeRoute emergency network
           </span>
 
         </div>
@@ -770,13 +633,335 @@ export default function Dashboard() {
   );
 }
 
+
+function EmergencyCard({
+  emergency,
+}) {
+  const patient =
+    emergency.patient || {};
+
+  const vitals =
+    emergency.vitals || {};
+
+  const assessment =
+    emergency.assessment || {};
+
+  const hospital =
+    emergency.hospital || {};
+
+  const location =
+    emergency.location || {};
+
+  const ktas =
+    Number(assessment.ktas_level) || 0;
+
+  const ktasCritical =
+    ktas === 1 || ktas === 2;
+
+  return (
+    <div className="overflow-hidden rounded-2xl border border-[#FF5A36]/20 bg-[#FF5A36]/[0.025]">
+
+      {/* TOP BAR */}
+
+      <div className="flex flex-col gap-4 border-b border-white/[0.07] bg-[#FF5A36]/[0.035] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+
+        <div className="flex items-center gap-3">
+
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FF5A36]/[0.10] text-[#FF7A5C]">
+            <AlertTriangle size={18} />
+          </div>
+
+          <div>
+            <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#FF7A5C]">
+              LifeRoute Incoming Emergency
+            </p>
+
+            <p className="mt-1 text-xs text-white/30">
+              Case {emergency.id}
+            </p>
+          </div>
+
+        </div>
+
+        <span
+          className={`inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium ${
+            ktasCritical
+              ? "border-red-400/20 bg-red-400/[0.08] text-red-300"
+              : "border-orange-400/20 bg-orange-400/[0.08] text-orange-300"
+          }`}
+        >
+          <span className="h-1.5 w-1.5 rounded-full bg-current" />
+
+          KTAS {ktas || "N/A"}
+
+          {assessment.category
+            ? ` — ${assessment.category}`
+            : ""}
+        </span>
+
+      </div>
+
+      <div className="p-5">
+
+        {/* PATIENT + VITALS */}
+
+        <div className="grid gap-5 lg:grid-cols-2">
+
+          <div>
+            <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-white/25">
+              Patient
+            </p>
+
+            <h3 className="mt-2 font-display text-xl font-semibold text-white">
+              {patient.age
+                ? `${patient.age}-year-old`
+                : "Emergency Patient"}
+            </h3>
+
+            <p className="mt-1 text-sm text-white/45">
+              {patient.gender === 1
+                ? "Female"
+                : patient.gender === 2
+                ? "Male"
+                : "Gender not specified"}
+            </p>
+
+            {patient.chief_complaint && (
+              <div className="mt-4 rounded-xl border border-white/[0.07] bg-white/[0.025] p-4">
+                <p className="text-[10px] uppercase tracking-wide text-white/25">
+                  Chief Complaint
+                </p>
+
+                <p className="mt-1.5 text-sm leading-6 text-white/65">
+                  {patient.chief_complaint}
+                </p>
+              </div>
+            )}
+          </div>
+
+          <div>
+            <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-white/25">
+              Current Vitals
+            </p>
+
+            <div className="mt-3 grid grid-cols-2 gap-2">
+
+              <VitalBox
+                label="Heart Rate"
+                value={vitals.heart_rate}
+                unit="BPM"
+                icon={HeartPulse}
+              />
+
+              <VitalBox
+                label="SpO₂"
+                value={vitals.spo2}
+                unit="%"
+                icon={Activity}
+              />
+
+              <VitalBox
+                label="Blood Pressure"
+                value={
+                  vitals.systolic_bp != null &&
+                  vitals.diastolic_bp != null
+                    ? `${vitals.systolic_bp}/${vitals.diastolic_bp}`
+                    : null
+                }
+                unit="mmHg"
+                icon={HeartPulse}
+              />
+
+              <VitalBox
+                label="Respiratory Rate"
+                value={vitals.respiratory_rate}
+                unit="/min"
+                icon={Wind}
+              />
+
+            </div>
+          </div>
+
+        </div>
+
+        {/* RESOURCES */}
+
+        <div className="mt-6 border-t border-white/[0.07] pt-5">
+
+          <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-white/25">
+            Prepare Required Resources
+          </p>
+
+          <div className="mt-3 flex flex-wrap gap-2">
+
+            {(assessment.resources || []).map(
+              (resource) => (
+                <span
+                  key={resource}
+                  className="inline-flex items-center gap-2 rounded-full border border-emerald-400/10 bg-emerald-400/[0.05] px-3 py-1.5 text-xs text-emerald-300"
+                >
+                  <CheckCircle2 size={13} />
+                  {resource}
+                </span>
+              )
+            )}
+
+          </div>
+
+        </div>
+
+        {/* ETA + LOCATION */}
+
+        <div className="mt-6 grid gap-3 sm:grid-cols-3">
+
+          <InfoBox
+            icon={Clock3}
+            label="Estimated Arrival"
+            value={
+              hospital.eta != null
+                ? `${hospital.eta} min`
+                : "Unavailable"
+            }
+          />
+
+          <InfoBox
+            icon={MapPin}
+            label="Distance"
+            value={
+              hospital.distance_km != null
+                ? `${hospital.distance_km} km`
+                : "Unavailable"
+            }
+          />
+
+          <InfoBox
+            icon={Navigation}
+            label="Patient Location"
+            value={
+              location.latitude != null &&
+              location.longitude != null
+                ? `${Number(
+                    location.latitude
+                  ).toFixed(4)}, ${Number(
+                    location.longitude
+                  ).toFixed(4)}`
+                : "Unavailable"
+            }
+          />
+
+        </div>
+
+        {/* AI REASON */}
+
+        {(assessment.reasons || []).length > 0 && (
+          <div className="mt-5 rounded-xl border border-[#7C8CF5]/10 bg-[#7C8CF5]/[0.035] p-4">
+
+            <div className="flex gap-3">
+
+              <Stethoscope
+                size={17}
+                className="mt-0.5 shrink-0 text-[#AAB4FF]"
+              />
+
+              <div>
+
+                <p className="text-xs font-medium text-[#AAB4FF]">
+                  LifeRoute Assessment
+                </p>
+
+                <ul className="mt-2 space-y-1">
+                  {assessment.reasons.map(
+                    (reason, index) => (
+                      <li
+                        key={`${reason}-${index}`}
+                        className="text-xs leading-5 text-white/40"
+                      >
+                        • {reason}
+                      </li>
+                    )
+                  )}
+                </ul>
+
+              </div>
+
+            </div>
+
+          </div>
+        )}
+
+      </div>
+    </div>
+  );
+}
+
+
+function VitalBox({
+  label,
+  value,
+  unit,
+  icon: Icon,
+}) {
+  return (
+    <div className="rounded-xl border border-white/[0.07] bg-white/[0.025] p-3">
+
+      <div className="flex items-center gap-2 text-white/30">
+        <Icon size={13} />
+        <span className="text-[10px] uppercase tracking-wide">
+          {label}
+        </span>
+      </div>
+
+      <div className="mt-2 flex items-baseline gap-1.5">
+        <span className="font-display text-lg font-semibold text-white">
+          {value != null
+            ? value
+            : "—"}
+        </span>
+
+        {value != null && (
+          <span className="text-[9px] text-white/25">
+            {unit}
+          </span>
+        )}
+      </div>
+
+    </div>
+  );
+}
+
+
+function InfoBox({
+  icon: Icon,
+  label,
+  value,
+}) {
+  return (
+    <div className="rounded-xl border border-white/[0.07] bg-white/[0.025] p-4">
+
+      <div className="flex items-center gap-2 text-white/30">
+        <Icon size={14} />
+        <span className="text-[10px] uppercase tracking-wide">
+          {label}
+        </span>
+      </div>
+
+      <p className="mt-2 text-sm font-medium text-white/75">
+        {value}
+      </p>
+
+    </div>
+  );
+}
+
+
 function ResourceBar({
   label,
   value,
   icon: Icon,
   max,
 }) {
-  const numericValue = Number(value) || 0;
+  const numericValue =
+    Number(value) || 0;
 
   const percentage = Math.min(
     (numericValue / max) * 100,
@@ -819,6 +1004,7 @@ function ResourceBar({
   );
 }
 
+
 function InfoRow({
   icon: Icon,
   label,
@@ -841,100 +1027,6 @@ function InfoRow({
 
       <span className="truncate text-right text-sm font-medium text-white/75">
         {value}
-      </span>
-
-    </div>
-  );
-}
-
-function NetworkStep({
-  icon: Icon,
-  title,
-  description,
-}) {
-  return (
-    <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
-      <div className="flex items-start gap-3">
-
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/[0.04] text-white/45">
-          <Icon size={16} />
-        </div>
-
-        <div>
-          <p className="text-xs font-medium text-white/70">
-            {title}
-          </p>
-
-          <p className="mt-1 text-[11px] leading-5 text-white/30">
-            {description}
-          </p>
-        </div>
-
-      </div>
-    </div>
-  );
-}
-
-function NetworkMetric({
-  label,
-  value,
-}) {
-  return (
-    <div className="flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3">
-
-      <span className="text-xs text-white/40">
-        {label}
-      </span>
-
-      <span className="font-display text-lg font-semibold text-white">
-        {value}
-      </span>
-
-    </div>
-  );
-}
-
-function PlanFeature({
-  icon: Icon,
-  title,
-  description,
-}) {
-  return (
-    <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
-
-      <div className="flex items-start gap-3">
-
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/[0.04] text-white/40">
-          <Icon size={15} />
-        </div>
-
-        <div>
-          <p className="text-xs font-medium text-white/70">
-            {title}
-          </p>
-
-          <p className="mt-1 text-[11px] leading-5 text-white/30">
-            {description}
-          </p>
-        </div>
-
-      </div>
-
-    </div>
-  );
-}
-
-function PlanCheck({ text }) {
-  return (
-    <div className="flex items-center gap-2.5">
-
-      <CheckCircle2
-        size={14}
-        className="shrink-0 text-emerald-400/80"
-      />
-
-      <span className="text-xs text-white/50">
-        {text}
       </span>
 
     </div>

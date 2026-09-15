@@ -65,3 +65,31 @@ def get_current_patient(
         "registered": True,
         "patient": patient,
     }
+
+
+@router.put("/profile")
+def update_patient_profile(
+    profile_data: dict,
+    decoded_token: dict = Depends(verify_firebase_token),
+):
+    """
+    Update the profile information of the
+    authenticated patient.
+    """
+
+    uid = decoded_token["uid"]
+
+    updated_patient = patient_service.update_patient(
+        uid=uid,
+        update_data=profile_data,
+    )
+
+    if updated_patient is None:
+        return {
+            "message": "Patient profile not found.",
+        }
+
+    return {
+        "message": "Patient profile updated successfully.",
+        "patient": updated_patient,
+    }

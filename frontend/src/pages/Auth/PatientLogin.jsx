@@ -96,9 +96,10 @@ function PatientLogin() {
             // -----------------------------------------
             // STEP 4
             // Patient is fully authenticated
+            // Go to the patient portal
             // -----------------------------------------
 
-            navigate("/patient/assessment");
+            navigate("/patient/dashboard");
 
         } catch (err) {
             console.error(
@@ -262,13 +263,12 @@ function PatientLogin() {
                                     Password
                                 </label>
 
-
-                                <Link
-                                    to="/patient/forgot-password"
-                                    className="text-sm text-orange-400 hover:text-orange-300"
+                                <button
+                                    type="button"
+                                    className="text-xs text-gray-500 hover:text-gray-300"
                                 >
                                     Forgot password?
-                                </Link>
+                                </button>
 
                             </div>
 
@@ -306,15 +306,13 @@ function PatientLogin() {
                                             !showPassword
                                         )
                                     }
-                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white"
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300"
                                 >
-
                                     {showPassword ? (
                                         <EyeOff size={19} />
                                     ) : (
                                         <Eye size={19} />
                                     )}
-
                                 </button>
 
                             </div>
@@ -325,7 +323,7 @@ function PatientLogin() {
                         {/* Error */}
 
                         {error && (
-                            <div className="bg-red-500/10 border border-red-500/30 text-red-300 rounded-xl px-4 py-3 text-sm">
+                            <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">
                                 {error}
                             </div>
                         )}
@@ -336,18 +334,15 @@ function PatientLogin() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-orange-500 hover:bg-orange-400 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold py-4 rounded-xl flex items-center justify-center gap-2 transition"
+                            className="w-full bg-orange-500 hover:bg-orange-400 disabled:opacity-50 text-white font-semibold rounded-xl py-4 flex items-center justify-center gap-2 transition"
                         >
+                            {loading
+                                ? "Signing in..."
+                                : "Sign In"}
 
-                            {loading ? (
-                                "Signing in..."
-                            ) : (
-                                <>
-                                    Sign In
-                                    <ArrowRight size={19} />
-                                </>
+                            {!loading && (
+                                <ArrowRight size={18} />
                             )}
-
                         </button>
 
                     </form>
@@ -355,13 +350,13 @@ function PatientLogin() {
 
                     {/* Register */}
 
-                    <div className="mt-7 text-center text-sm text-gray-400">
+                    <div className="mt-8 text-center text-sm text-gray-500">
 
                         Don't have an account?{" "}
 
                         <Link
                             to="/patient/register"
-                            className="text-orange-400 hover:text-orange-300 font-semibold"
+                            className="text-orange-400 hover:text-orange-300"
                         >
                             Create one
                         </Link>

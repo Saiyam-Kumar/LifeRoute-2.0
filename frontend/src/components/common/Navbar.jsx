@@ -44,6 +44,11 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
 
+  const goToPatientPortal = () => {
+    setOpen(false);
+    navigate("/patient/login");
+  };
+
   const goToAssessment = () => {
     setOpen(false);
     navigate("/patient/assessment");
@@ -52,11 +57,6 @@ export default function Navbar() {
   const goToHospitalLogin = () => {
     setOpen(false);
     navigate("/hospital/login");
-  };
-
-  const goToHospitalRegister = () => {
-    setOpen(false);
-    navigate("/hospital/register");
   };
 
   return (
@@ -84,6 +84,14 @@ export default function Navbar() {
             </a>
           ))}
 
+          {/* Patient Portal */}
+          <button
+            onClick={goToPatientPortal}
+            className="text-[14px] font-medium text-white/70 hover:text-white transition-colors"
+          >
+            Patient Portal
+          </button>
+
           {/* Hospital Portal */}
           <button
             onClick={goToHospitalLogin}
@@ -91,7 +99,6 @@ export default function Navbar() {
           >
             Hospital Portal
           </button>
-
         </div>
 
         {/* Emergency Assessment */}
@@ -137,6 +144,15 @@ export default function Navbar() {
             </a>
           ))}
 
+          {/* Patient Portal */}
+          <button
+            onClick={goToPatientPortal}
+            className="text-left text-[15px] font-medium text-white/70 hover:text-white transition-colors"
+          >
+            Patient Portal
+          </button>
+
+          {/* Hospital Portal */}
           <button
             onClick={goToHospitalLogin}
             className="text-left text-[15px] font-medium text-white/70 hover:text-white transition-colors"

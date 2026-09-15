@@ -1,7 +1,43 @@
-import { deterioratingHealthData } from "../../../mock/healthData";
+export default function HealthTrendsPreview({
+  data,
+  loading,
+  usingRealData,
+}) {
+  if (loading) {
+    return (
+      <section className="rounded-2xl border border-white/[0.08] bg-[#11151D] p-6">
+        <p className="text-xs uppercase tracking-[0.18em] text-white/30">
+          Trends
+        </p>
 
-export default function HealthTrendsPreview() {
-  const data = deterioratingHealthData;
+        <h2 className="text-lg font-semibold text-white mt-2">
+          Recent Health Trends
+        </h2>
+
+        <p className="text-sm text-white/40 mt-6">
+          Loading health history...
+        </p>
+      </section>
+    );
+  }
+
+  if (!usingRealData || !data?.length) {
+    return (
+      <section className="rounded-2xl border border-white/[0.08] bg-[#11151D] p-6">
+        <p className="text-xs uppercase tracking-[0.18em] text-white/30">
+          Trends
+        </p>
+
+        <h2 className="text-lg font-semibold text-white mt-2">
+          Recent Health Trends
+        </h2>
+
+        <p className="text-sm text-white/40 mt-6">
+          Health trends will appear once real vital readings are available.
+        </p>
+      </section>
+    );
+  }
 
   return (
     <section className="rounded-2xl border border-white/[0.08] bg-[#11151D] p-6">
@@ -18,17 +54,23 @@ export default function HealthTrendsPreview() {
       <div className="mt-6 space-y-5">
         <Trend
           label="Heart Rate"
-          values={data.map((item) => item.heart_rate)}
+          values={data
+            .map((item) => item.heart_rate)
+            .filter((value) => value != null)}
         />
 
         <Trend
           label="SpO₂"
-          values={data.map((item) => item.spo2)}
+          values={data
+            .map((item) => item.spo2)
+            .filter((value) => value != null)}
         />
 
         <Trend
           label="Temperature"
-          values={data.map((item) => item.temperature)}
+          values={data
+            .map((item) => item.temperature)
+            .filter((value) => value != null)}
         />
       </div>
     </section>
@@ -36,13 +78,19 @@ export default function HealthTrendsPreview() {
 }
 
 function Trend({ label, values }) {
+  if (!values.length) {
+    return null;
+  }
+
   const min = Math.min(...values);
   const max = Math.max(...values);
 
   return (
     <div>
       <div className="flex justify-between mb-2">
-        <span className="text-xs text-white/50">{label}</span>
+        <span className="text-xs text-white/50">
+          {label}
+        </span>
 
         <span className="text-xs text-white/30">
           {values[0]} → {values[values.length - 1]}

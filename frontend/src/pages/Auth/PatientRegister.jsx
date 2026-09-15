@@ -89,10 +89,10 @@ function PatientRegister() {
 
             // -----------------------------------------
             // STEP 3
-            // Continue to patient assessment
+            // Continue to patient dashboard
             // -----------------------------------------
 
-            navigate("/patient/assessment");
+            navigate("/patient/dashboard");
 
         } catch (err) {
             console.error(
@@ -180,7 +180,7 @@ function PatientRegister() {
 
                         <p className="text-gray-400 mt-2">
                             Create a LifeRoute patient account
-                            to access emergency assessment.
+                            to access your healthcare portal.
                         </p>
 
                     </div>
