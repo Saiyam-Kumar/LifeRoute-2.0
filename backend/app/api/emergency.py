@@ -145,3 +145,27 @@ def update_emergency_status(
         "message": "Emergency status updated successfully.",
         "case": emergency,
     }
+
+@router.get("/my-case")
+def get_my_emergency_case(
+    decoded_token: dict = Depends(verify_firebase_token),
+):
+    uid = decoded_token.get("uid")
+
+    if not uid:
+        raise HTTPException(
+            status_code=401,
+            detail="Authenticated user UID not found.",
+        )
+
+    emergency = service.get_patient_emergency(uid)
+
+    if emergency is None:
+        raise HTTPException(
+            status_code=404,
+            detail="No emergency case found for this patient.",
+        )
+
+    return {
+        "case": emergency,
+    }

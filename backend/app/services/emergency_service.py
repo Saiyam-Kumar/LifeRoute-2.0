@@ -154,3 +154,30 @@ class EmergencyService:
         emergency["id"] = case_id
 
         return emergency
+
+    def get_patient_emergency(self, patient_id: str):
+        docs = (
+            db.collection(self.COLLECTION)
+            .where("patient_id", "==", patient_id)
+            .stream()
+        )
+
+        emergencies = []
+
+        for doc in docs:
+            emergency = doc.to_dict()
+            emergency["id"] = doc.id
+            emergencies.append(emergency)
+
+        if not emergencies:
+            return None
+
+        emergencies.sort(
+            key=lambda emergency: emergency.get(
+                "created_at",
+                datetime.min.replace(tzinfo=timezone.utc),
+            ),
+            reverse=True,
+        )
+
+        return emergencies[0]
