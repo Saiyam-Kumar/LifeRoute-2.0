@@ -107,3 +107,50 @@ class EmergencyService:
         )
 
         return emergencies
+
+    def update_emergency_status(
+        self,
+        case_id: str,
+        hospital_id: str,
+        new_status: str,
+    ):
+        doc_ref = db.collection(self.COLLECTION).document(case_id)
+        doc = doc_ref.get()
+
+        if not doc.exists:
+            raise ValueError("Emergency case not found.")
+
+        emergency = doc.to_dict()
+
+        if emergency.get("hospital_id") != hospital_id:
+            raise PermissionError(
+                "You can only update emergencies assigned to your hospital."
+            )
+
+        current_status = emergency.get("status", "incoming")
+
+        allowed_transitions = {
+            "incoming": {"accepted"},
+            "accepted": {"preparing"},
+            "preparing": {"patient_arrived"},
+            "patient_arrived": {"completed"},
+            "completed": set(),
+        }
+
+        if new_status not in allowed_transitions.get(current_status, set()):
+            raise ValueError(
+                f"Invalid status transition: "
+                f"{current_status} -> {new_status}"
+            )
+
+        update_data = {
+            "status": new_status,
+            "updated_at": datetime.now(timezone.utc),
+        }
+
+        doc_ref.update(update_data)
+
+        emergency.update(update_data)
+        emergency["id"] = case_id
+
+        return emergency
