@@ -1,0 +1,465 @@
+﻿
+  src\components\common\Navbar.jsx:39:  );
+  src\components\common\Navbar.jsx:40:}
+  src\components\common\Navbar.jsx:41:
+  src\components\common\Navbar.jsx:42:export default function Navbar() {
+  src\components\common\Navbar.jsx:43:  const [open, setOpen] = useState(false);
+> src\components\common\Navbar.jsx:44:  const navigate = useNavigate();
+  src\components\common\Navbar.jsx:45:
+  src\components\common\Navbar.jsx:46:  const goToAssessment = () => {
+  src\components\common\Navbar.jsx:47:    setOpen(false);
+> src\components\common\Navbar.jsx:48:    navigate("/patient/assessment");
+  src\components\common\Navbar.jsx:49:  };
+  src\components\common\Navbar.jsx:50:
+  src\components\common\Navbar.jsx:51:  const goToPatientLogin = () => {
+  src\components\common\Navbar.jsx:52:    setOpen(false);
+> src\components\common\Navbar.jsx:53:    navigate("/patient/login");
+  src\components\common\Navbar.jsx:54:  };
+  src\components\common\Navbar.jsx:55:
+  src\components\common\Navbar.jsx:56:  const goToHospitalLogin = () => {
+  src\components\common\Navbar.jsx:57:    setOpen(false);
+> src\components\common\Navbar.jsx:58:    navigate("/hospital/login");
+  src\components\common\Navbar.jsx:59:  };
+  src\components\common\Navbar.jsx:60:
+  src\components\common\Navbar.jsx:61:  return (
+  src\components\common\Navbar.jsx:62:    <motion.header
+  src\components\common\Navbar.jsx:63:      initial={{ y: -16, opacity: 0 }}
+  src\components\landing\Hero.jsx:2:import { motion } from "framer-motion";
+  src\components\landing\Hero.jsx:3:import Button from "../common/Button";
+  src\components\landing\Hero.jsx:4:import ECGBackground from "./ECGBackground";
+  src\components\landing\Hero.jsx:5:
+  src\components\landing\Hero.jsx:6:export default function Hero() {
+> src\components\landing\Hero.jsx:7:  const navigate = useNavigate();
+  src\components\landing\Hero.jsx:8:
+  src\components\landing\Hero.jsx:9:  return (
+  src\components\landing\Hero.jsx:10:    <section className="relative overflow-hidden bg-[#0B0D12] pt-36 pb-24 
+lg:pt-40 lg:pb-32">
+  src\components\landing\Hero.jsx:11:      {/* Background atmosphere */}
+  src\components\landing\Hero.jsx:12:      <div
+  src\components\landing\Hero.jsx:99:              {/* CHANGED:
+  src\components\landing\Hero.jsx:100:                  Landing → RFID/NFC → Assessment
+  src\components\landing\Hero.jsx:101:              */}
+  src\components\landing\Hero.jsx:102:              <Button
+  src\components\landing\Hero.jsx:103:                variant="primary"
+> src\components\landing\Hero.jsx:104:                onClick={() => navigate("/patient/rfid")}
+  src\components\landing\Hero.jsx:105:              >
+  src\components\landing\Hero.jsx:106:                Start Emergency Assessment
+  src\components\landing\Hero.jsx:107:              </Button>
+  src\components\landing\Hero.jsx:108:
+  src\components\landing\Hero.jsx:109:
+  src\components\patient\portal\EmergencyAssistance.jsx:4:/**
+  src\components\patient\portal\EmergencyAssistance.jsx:5: * Single responsibility: navigate into the EXISTING 
+emergency workflow.
+  src\components\patient\portal\EmergencyAssistance.jsx:6: * No new emergency logic lives here or anywhere in the 
+portal.
+  src\components\patient\portal\EmergencyAssistance.jsx:7: */
+  src\components\patient\portal\EmergencyAssistance.jsx:8:export default function EmergencyAssistance({ variant = 
+"sidebar" }) {
+> src\components\patient\portal\EmergencyAssistance.jsx:9:  const navigate = useNavigate();
+> src\components\patient\portal\EmergencyAssistance.jsx:10:  const go = () => navigate("/patient/assessment");
+  src\components\patient\portal\EmergencyAssistance.jsx:11:
+  src\components\patient\portal\EmergencyAssistance.jsx:12:  if (variant === "card") {
+  src\components\patient\portal\EmergencyAssistance.jsx:13:    return (
+  src\components\patient\portal\EmergencyAssistance.jsx:14:      <button
+  src\components\patient\portal\EmergencyAssistance.jsx:15:        type="button"
+  src\components\patient\portal\PortalHeader.jsx:1:import { useNavigate } from "react-router-dom";
+  src\components\patient\portal\PortalHeader.jsx:2:import { useAuth } from "../../../context/AuthContext";
+  src\components\patient\portal\PortalHeader.jsx:3:import { User } from "lucide-react";
+  src\components\patient\portal\PortalHeader.jsx:4:
+  src\components\patient\portal\PortalHeader.jsx:5:export default function PortalHeader() {
+> src\components\patient\portal\PortalHeader.jsx:6:  const navigate = useNavigate();
+  src\components\patient\portal\PortalHeader.jsx:7:  const { profile, user } = useAuth() || {};
+  src\components\patient\portal\PortalHeader.jsx:8:
+  src\components\patient\portal\PortalHeader.jsx:9:  const displayName =
+  src\components\patient\portal\PortalHeader.jsx:10:    profile?.name || profile?.firstName || 
+user?.email?.split("@")[0] || "there";
+  src\components\patient\portal\PortalHeader.jsx:11:
+  src\components\patient\portal\PortalHeader.jsx:32:            </span>
+  src\components\patient\portal\PortalHeader.jsx:33:          </div>
+  src\components\patient\portal\PortalHeader.jsx:34:
+  src\components\patient\portal\PortalHeader.jsx:35:          <button
+  src\components\patient\portal\PortalHeader.jsx:36:            type="button"
+> src\components\patient\portal\PortalHeader.jsx:37:            onClick={() => 
+navigate("/patient/dashboard/profile")}
+  src\components\patient\portal\PortalHeader.jsx:38:            aria-label="Profile"
+  src\components\patient\portal\PortalHeader.jsx:39:            className="flex items-center justify-center h-9 w-9 
+rounded-full border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] transition-colors"
+  src\components\patient\portal\PortalHeader.jsx:40:          >
+  src\components\patient\portal\PortalHeader.jsx:41:            <User size={16} strokeWidth={1.75} 
+className="text-white/70" />
+  src\components\patient\portal\PortalHeader.jsx:42:          </button>
+  src\components\patient\HospitalDetails.jsx:84:}
+  src\components\patient\HospitalDetails.jsx:85:
+  src\components\patient\HospitalDetails.jsx:86:
+  src\components\patient\HospitalDetails.jsx:87:export default function HospitalDetails() {
+  src\components\patient\HospitalDetails.jsx:88:
+> src\components\patient\HospitalDetails.jsx:89:    const navigate = useNavigate();
+  src\components\patient\HospitalDetails.jsx:90:
+  src\components\patient\HospitalDetails.jsx:91:    const { prediction } = usePrediction();
+  src\components\patient\HospitalDetails.jsx:92:
+  src\components\patient\HospitalDetails.jsx:93:
+  src\components\patient\HospitalDetails.jsx:94:    /* 
+-------------------------------------------------------------- */
+  src\components\patient\HospitalDetails.jsx:208:            "Google Maps URL:",
+  src\components\patient\HospitalDetails.jsx:209:            mapsUrl
+  src\components\patient\HospitalDetails.jsx:210:        );
+  src\components\patient\HospitalDetails.jsx:211:
+  src\components\patient\HospitalDetails.jsx:212:
+> src\components\patient\HospitalDetails.jsx:213:        window.location.href = mapsUrl;
+  src\components\patient\HospitalDetails.jsx:214:    };
+  src\components\patient\HospitalDetails.jsx:215:
+  src\components\patient\HospitalDetails.jsx:216:
+  src\components\patient\HospitalDetails.jsx:217:    return (
+  src\components\patient\HospitalDetails.jsx:218:        <div className="min-h-screen bg-[#0B0D12] pb-28">
+  src\components\patient\HospitalDetails.jsx:227:                <div className="max-w-6xl mx-auto px-5 sm:px-6 
+lg:px-8 py-5 flex items-center gap-4">
+  src\components\patient\HospitalDetails.jsx:228:
+  src\components\patient\HospitalDetails.jsx:229:                    <button
+  src\components\patient\HospitalDetails.jsx:230:                        type="button"
+  src\components\patient\HospitalDetails.jsx:231:                        onClick={() =>
+> src\components\patient\HospitalDetails.jsx:232:                            navigate("/patient/results")
+  src\components\patient\HospitalDetails.jsx:233:                        }
+  src\components\patient\HospitalDetails.jsx:234:                        className="flex items-center justify-center 
+h-9 w-9 rounded-full border border-white/10 hover:bg-white/[0.05] transition-colors"
+  src\components\patient\HospitalDetails.jsx:235:                        aria-label="Back to results"
+  src\components\patient\HospitalDetails.jsx:236:                    >
+  src\components\patient\HospitalDetails.jsx:237:
+  src\components\patient\HospitalDetails.jsx:790:
+  src\components\patient\HospitalDetails.jsx:791:
+  src\components\patient\HospitalDetails.jsx:792:                    <button
+  src\components\patient\HospitalDetails.jsx:793:                        type="button"
+  src\components\patient\HospitalDetails.jsx:794:                        onClick={() =>
+> src\components\patient\HospitalDetails.jsx:795:                            navigate(
+  src\components\patient\HospitalDetails.jsx:796:                                "/patient/results"
+  src\components\patient\HospitalDetails.jsx:797:                            )
+  src\components\patient\HospitalDetails.jsx:798:                        }
+  src\components\patient\HospitalDetails.jsx:799:                        className="inline-flex items-center 
+justify-center gap-2 rounded-full border border-white/15 px-8 py-4 text-[15px] font-medium text-white/70 
+hover:border-white/30 hover:bg-white/[0.03] transition-all duration-300 active:scale-[0.98]"
+  src\components\patient\HospitalDetails.jsx:800:                    >
+  src\components\patient\Results.jsx:122:/* RESULTS                                                            */
+  src\components\patient\Results.jsx:123:/* ================================================================== */
+  src\components\patient\Results.jsx:124:
+  src\components\patient\Results.jsx:125:export default function Results() {
+  src\components\patient\Results.jsx:126:  const { prediction } = usePrediction();
+> src\components\patient\Results.jsx:127:  const navigate = useNavigate();
+  src\components\patient\Results.jsx:128:
+  src\components\patient\Results.jsx:129:  console.log("RESULTS:", prediction);
+  src\components\patient\Results.jsx:130:
+  src\components\patient\Results.jsx:131:  if (!prediction) {
+  src\components\patient\Results.jsx:132:    return (
+  src\components\patient\Results.jsx:136:            No prediction available.
+  src\components\patient\Results.jsx:137:          </p>
+  src\components\patient\Results.jsx:138:
+  src\components\patient\Results.jsx:139:          <button
+  src\components\patient\Results.jsx:140:            type="button"
+> src\components\patient\Results.jsx:141:            onClick={() => navigate("/patient/assessment")}
+  src\components\patient\Results.jsx:142:            className="mt-5 rounded-full bg-[#FF5A36] px-5 py-2.5 text-sm 
+font-medium text-white transition hover:bg-[#FF6B4A]"
+  src\components\patient\Results.jsx:143:          >
+  src\components\patient\Results.jsx:144:            Start Assessment
+  src\components\patient\Results.jsx:145:          </button>
+  src\components\patient\Results.jsx:146:        </div>
+  src\components\patient\Results.jsx:458:            </div>
+  src\components\patient\Results.jsx:459:
+  src\components\patient\Results.jsx:460:            <button
+  src\components\patient\Results.jsx:461:              type="button"
+  src\components\patient\Results.jsx:462:              onClick={() =>
+> src\components\patient\Results.jsx:463:                navigate("/patient/hospital")
+  src\components\patient\Results.jsx:464:              }
+  src\components\patient\Results.jsx:465:              className="group w-full sm:w-auto inline-flex items-center 
+justify-center gap-2 rounded-full bg-[#FF5A36] px-8 py-4 text-[15px] font-medium text-white transition-all 
+duration-300 hover:bg-[#FF6B4A] active:scale-[0.98] shadow-[0_8px_24px_-8px_rgba(255,90,54,0.55)]"
+  src\components\patient\Results.jsx:466:            >
+  src\components\patient\Results.jsx:467:
+  src\components\patient\Results.jsx:468:              View Hospital Details
+  src\components\patient\Results.jsx:756:        <div className="flex flex-col sm:flex-row gap-3">
+  src\components\patient\Results.jsx:757:
+  src\components\patient\Results.jsx:758:          <button
+  src\components\patient\Results.jsx:759:            type="button"
+  src\components\patient\Results.jsx:760:            onClick={() =>
+> src\components\patient\Results.jsx:761:              navigate("/patient/hospital")
+  src\components\patient\Results.jsx:762:            }
+  src\components\patient\Results.jsx:763:            className="group flex-1 inline-flex items-center justify-center 
+gap-2 rounded-full bg-[#FF5A36] px-8 py-4 text-[15px] font-medium text-white transition-all duration-300 
+hover:bg-[#FF6B4A] active:scale-[0.98] shadow-[0_8px_24px_-8px_rgba(255,90,54,0.55)]"
+  src\components\patient\Results.jsx:764:          >
+  src\components\patient\Results.jsx:765:
+  src\components\patient\Results.jsx:766:            View Hospital Details
+  src\components\patient\Results.jsx:774:          </button>
+  src\components\patient\Results.jsx:775:
+  src\components\patient\Results.jsx:776:          <button
+  src\components\patient\Results.jsx:777:            type="button"
+  src\components\patient\Results.jsx:778:            onClick={() =>
+> src\components\patient\Results.jsx:779:              navigate("/patient/assessment")
+  src\components\patient\Results.jsx:780:            }
+  src\components\patient\Results.jsx:781:            className="inline-flex items-center justify-center gap-2 
+rounded-full border border-white/[0.12] px-8 py-4 text-[15px] font-medium text-white/65 hover:border-white/20 
+hover:bg-white/[0.04] hover:text-white transition-all duration-300 active:scale-[0.98]"
+  src\components\patient\Results.jsx:782:          >
+  src\components\patient\Results.jsx:783:
+  src\components\patient\Results.jsx:784:            <RotateCcw
+  src\components\patient\RfidNfcScanner.jsx:1:import { useEffect, useRef, useState } from "react";
+  src\components\patient\RfidNfcScanner.jsx:2:import { useNavigate } from "react-router-dom";
+  src\components\patient\RfidNfcScanner.jsx:3:
+  src\components\patient\RfidNfcScanner.jsx:4:function RfidNfcScanner() {
+> src\components\patient\RfidNfcScanner.jsx:5:    const navigate = useNavigate();
+  src\components\patient\RfidNfcScanner.jsx:6:
+  src\components\patient\RfidNfcScanner.jsx:7:    const [scanning, setScanning] = useState(false);
+  src\components\patient\RfidNfcScanner.jsx:8:    const [patient, setPatient] = useState(null);
+  src\components\patient\RfidNfcScanner.jsx:9:
+  src\components\patient\RfidNfcScanner.jsx:10:    const [cameraActive, setCameraActive] = useState(false);
+  src\components\patient\RfidNfcScanner.jsx:474:     * Continue to existing LifeRoute assessment
+  src\components\patient\RfidNfcScanner.jsx:475:     */
+  src\components\patient\RfidNfcScanner.jsx:476:    const startAssessment = () => {
+  src\components\patient\RfidNfcScanner.jsx:477:        stopCamera();
+  src\components\patient\RfidNfcScanner.jsx:478:
+> src\components\patient\RfidNfcScanner.jsx:479:        navigate(
+> src\components\patient\RfidNfcScanner.jsx:480:            "/patient/assessment"
+  src\components\patient\RfidNfcScanner.jsx:481:        );
+  src\components\patient\RfidNfcScanner.jsx:482:    };
+  src\components\patient\RfidNfcScanner.jsx:483:
+  src\components\patient\RfidNfcScanner.jsx:484:
+  src\components\patient\RfidNfcScanner.jsx:485:    /*
+  src\constants\routes.js:6:
+  src\constants\routes.js:7:    PATIENT_REGISTER: "/patient/register",
+  src\constants\routes.js:8:
+  src\constants\routes.js:9:    PATIENT_DASHBOARD: "/patient/dashboard",
+  src\constants\routes.js:10:
+> src\constants\routes.js:11:    PATIENT_ASSESSMENT: "/patient/assessment",
+  src\constants\routes.js:12:
+  src\constants\routes.js:13:    PATIENT_LOADING: "/patient/loading",
+  src\constants\routes.js:14:
+  src\constants\routes.js:15:    PATIENT_RESULTS: "/patient/results",
+  src\constants\routes.js:16:
+  src\hooks\usePatientForm.js:7:import { getCurrentLocation } from "../services/locationService";
+  src\hooks\usePatientForm.js:8:
+  src\hooks\usePatientForm.js:9:import usePrediction from "./usePrediction";
+  src\hooks\usePatientForm.js:10:
+  src\hooks\usePatientForm.js:11:const usePatientForm = () => {
+> src\hooks\usePatientForm.js:12:  const navigate = useNavigate();
+  src\hooks\usePatientForm.js:13:
+  src\hooks\usePatientForm.js:14:  const { setPrediction, setLoading } = usePrediction();
+  src\hooks\usePatientForm.js:15:
+  src\hooks\usePatientForm.js:16:  const [formData, setFormData] = useState(initialPatientForm);
+  src\hooks\usePatientForm.js:17:
+  src\hooks\usePatientForm.js:113:
+  src\hooks\usePatientForm.js:114:    try {
+  src\hooks\usePatientForm.js:115:      setLoading(true);
+  src\hooks\usePatientForm.js:116:
+  src\hooks\usePatientForm.js:117:      // Go to loading screen immediately
+> src\hooks\usePatientForm.js:118:      navigate("/patient/loading");
+  src\hooks\usePatientForm.js:119:
+  src\hooks\usePatientForm.js:120:      const result = await runPrediction(
+  src\hooks\usePatientForm.js:121:        updatedFormData,
+  src\hooks\usePatientForm.js:122:        setPrediction,
+  src\hooks\usePatientForm.js:123:        setLoading
+  src\hooks\usePatientForm.js:124:      );
+  src\hooks\usePatientForm.js:125:
+  src\hooks\usePatientForm.js:126:      // Only show results after backend responds
+  src\hooks\usePatientForm.js:127:      if (result) {
+> src\hooks\usePatientForm.js:128:        navigate("/patient/results");
+  src\hooks\usePatientForm.js:129:      }
+  src\hooks\usePatientForm.js:130:    } catch (error) {
+  src\hooks\usePatientForm.js:131:      console.error(
+  src\hooks\usePatientForm.js:132:        "Prediction Error:",
+  src\hooks\usePatientForm.js:133:        error
+  src\hooks\usePatientForm.js:134:      );
+  src\hooks\usePatientForm.js:135:
+  src\hooks\usePatientForm.js:136:      setLoading(false);
+  src\hooks\usePatientForm.js:137:
+> src\hooks\usePatientForm.js:138:      navigate("/patient/assessment");
+  src\hooks\usePatientForm.js:139:    }
+  src\hooks\usePatientForm.js:140:  };
+  src\hooks\usePatientForm.js:141:
+  src\hooks\usePatientForm.js:142:  return {
+  src\hooks\usePatientForm.js:143:    formData,
+  src\pages\Auth\HospitalLogin.jsx:1:import { useState } from "react";
+  src\pages\Auth\HospitalLogin.jsx:2:import { Link, useNavigate } from "react-router-dom";
+  src\pages\Auth\HospitalLogin.jsx:3:import { login } from "../../services/authService";
+  src\pages\Auth\HospitalLogin.jsx:4:
+  src\pages\Auth\HospitalLogin.jsx:5:function HospitalLogin() {
+> src\pages\Auth\HospitalLogin.jsx:6:    const navigate = useNavigate();
+  src\pages\Auth\HospitalLogin.jsx:7:
+  src\pages\Auth\HospitalLogin.jsx:8:    const [email, setEmail] = useState("");
+  src\pages\Auth\HospitalLogin.jsx:9:    const [password, setPassword] = useState("");
+  src\pages\Auth\HospitalLogin.jsx:10:    const [error, setError] = useState("");
+  src\pages\Auth\HospitalLogin.jsx:11:    const [loading, setLoading] = useState(false);
+  src\pages\Auth\HospitalLogin.jsx:18:
+  src\pages\Auth\HospitalLogin.jsx:19:        try {
+  src\pages\Auth\HospitalLogin.jsx:20:            await login(email, password);
+  src\pages\Auth\HospitalLogin.jsx:21:
+  src\pages\Auth\HospitalLogin.jsx:22:            // Hospital dashboard
+> src\pages\Auth\HospitalLogin.jsx:23:            navigate("/hospital/dashboard");
+  src\pages\Auth\HospitalLogin.jsx:24:        } catch (err) {
+  src\pages\Auth\HospitalLogin.jsx:25:            console.error(err);
+  src\pages\Auth\HospitalLogin.jsx:26:
+  src\pages\Auth\HospitalLogin.jsx:27:            if (err.code === "auth/invalid-credential") {
+  src\pages\Auth\HospitalLogin.jsx:28:                setError("Incorrect email or password.");
+  src\pages\Auth\HospitalRegister.jsx:4:
+  src\pages\Auth\HospitalRegister.jsx:5:const API_URL =
+  src\pages\Auth\HospitalRegister.jsx:6:    import.meta.env.VITE_API_URL || "http://localhost:8000";
+  src\pages\Auth\HospitalRegister.jsx:7:
+  src\pages\Auth\HospitalRegister.jsx:8:function HospitalRegister() {
+> src\pages\Auth\HospitalRegister.jsx:9:    const navigate = useNavigate();
+  src\pages\Auth\HospitalRegister.jsx:10:
+  src\pages\Auth\HospitalRegister.jsx:11:    const [form, setForm] = useState({
+  src\pages\Auth\HospitalRegister.jsx:12:        hospitalName: "",
+  src\pages\Auth\HospitalRegister.jsx:13:        email: "",
+  src\pages\Auth\HospitalRegister.jsx:14:        password: "",
+  src\pages\Auth\HospitalRegister.jsx:101:
+  src\pages\Auth\HospitalRegister.jsx:102:            // -----------------------------------------
+  src\pages\Auth\HospitalRegister.jsx:103:            // 4. Hospital registration complete
+  src\pages\Auth\HospitalRegister.jsx:104:            // -----------------------------------------
+  src\pages\Auth\HospitalRegister.jsx:105:
+> src\pages\Auth\HospitalRegister.jsx:106:            navigate("/hospital/dashboard");
+  src\pages\Auth\HospitalRegister.jsx:107:
+  src\pages\Auth\HospitalRegister.jsx:108:        } catch (err) {
+  src\pages\Auth\HospitalRegister.jsx:109:            console.error(
+  src\pages\Auth\HospitalRegister.jsx:110:                "Hospital registration failed:",
+  src\pages\Auth\HospitalRegister.jsx:111:                err
+  src\pages\Auth\PatientLogin.jsx:15:    getPatientMe,
+  src\pages\Auth\PatientLogin.jsx:16:} from "../../services/authService";
+  src\pages\Auth\PatientLogin.jsx:17:
+  src\pages\Auth\PatientLogin.jsx:18:
+  src\pages\Auth\PatientLogin.jsx:19:function PatientLogin() {
+> src\pages\Auth\PatientLogin.jsx:20:    const navigate = useNavigate();
+  src\pages\Auth\PatientLogin.jsx:21:
+  src\pages\Auth\PatientLogin.jsx:22:    const [email, setEmail] = useState("");
+  src\pages\Auth\PatientLogin.jsx:23:    const [password, setPassword] = useState("");
+  src\pages\Auth\PatientLogin.jsx:24:
+  src\pages\Auth\PatientLogin.jsx:25:    const [showPassword, setShowPassword] = useState(false);
+  src\pages\Auth\PatientLogin.jsx:96:            // -----------------------------------------
+  src\pages\Auth\PatientLogin.jsx:97:            // STEP 4
+  src\pages\Auth\PatientLogin.jsx:98:            // Patient is fully authenticated
+  src\pages\Auth\PatientLogin.jsx:99:            // -----------------------------------------
+  src\pages\Auth\PatientLogin.jsx:100:
+> src\pages\Auth\PatientLogin.jsx:101:            navigate("/patient/dashboard");
+  src\pages\Auth\PatientLogin.jsx:102:
+  src\pages\Auth\PatientLogin.jsx:103:        } catch (err) {
+  src\pages\Auth\PatientLogin.jsx:104:            console.error(
+  src\pages\Auth\PatientLogin.jsx:105:                "Patient login error:",
+  src\pages\Auth\PatientLogin.jsx:106:                err
+  src\pages\Auth\PatientRegister.jsx:15:    registerPatient,
+  src\pages\Auth\PatientRegister.jsx:16:} from "../../services/authService";
+  src\pages\Auth\PatientRegister.jsx:17:
+  src\pages\Auth\PatientRegister.jsx:18:
+  src\pages\Auth\PatientRegister.jsx:19:function PatientRegister() {
+> src\pages\Auth\PatientRegister.jsx:20:    const navigate = useNavigate();
+  src\pages\Auth\PatientRegister.jsx:21:
+  src\pages\Auth\PatientRegister.jsx:22:    const [email, setEmail] = useState("");
+  src\pages\Auth\PatientRegister.jsx:23:    const [password, setPassword] = useState("");
+  src\pages\Auth\PatientRegister.jsx:24:    const [confirmPassword, setConfirmPassword] = useState("");
+  src\pages\Auth\PatientRegister.jsx:25:
+  src\pages\Auth\PatientRegister.jsx:90:            // -----------------------------------------
+  src\pages\Auth\PatientRegister.jsx:91:            // STEP 3
+  src\pages\Auth\PatientRegister.jsx:92:            // Continue to patient assessment
+  src\pages\Auth\PatientRegister.jsx:93:            // -----------------------------------------
+  src\pages\Auth\PatientRegister.jsx:94:
+> src\pages\Auth\PatientRegister.jsx:95:            navigate("/patient/assessment");
+  src\pages\Auth\PatientRegister.jsx:96:
+  src\pages\Auth\PatientRegister.jsx:97:        } catch (err) {
+  src\pages\Auth\PatientRegister.jsx:98:            console.error(
+  src\pages\Auth\PatientRegister.jsx:99:                "Patient registration error:",
+  src\pages\Auth\PatientRegister.jsx:100:                err
+  src\pages\Patient\Portal\EmergencyAssistance.jsx:1:import { useNavigate } from "react-router-dom";
+  src\pages\Patient\Portal\EmergencyAssistance.jsx:2:
+  src\pages\Patient\Portal\EmergencyAssistance.jsx:3:export default function EmergencyAssistance() {
+> src\pages\Patient\Portal\EmergencyAssistance.jsx:4:  const navigate = useNavigate();
+  src\pages\Patient\Portal\EmergencyAssistance.jsx:5:
+  src\pages\Patient\Portal\EmergencyAssistance.jsx:6:  return (
+  src\pages\Patient\Portal\EmergencyAssistance.jsx:7:    <section className="rounded-2xl border border-red-400/20 
+bg-red-400/5 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+  src\pages\Patient\Portal\EmergencyAssistance.jsx:8:      <div>
+  src\pages\Patient\Portal\EmergencyAssistance.jsx:9:        <p className="text-sm font-semibold text-white">
+  src\pages\Patient\Portal\EmergencyAssistance.jsx:14:          Start the existing LifeRoute emergency assessment.
+  src\pages\Patient\Portal\EmergencyAssistance.jsx:15:        </p>
+  src\pages\Patient\Portal\EmergencyAssistance.jsx:16:      </div>
+  src\pages\Patient\Portal\EmergencyAssistance.jsx:17:
+  src\pages\Patient\Portal\EmergencyAssistance.jsx:18:      <button
+> src\pages\Patient\Portal\EmergencyAssistance.jsx:19:        onClick={() => navigate("/patient/assessment")}
+  src\pages\Patient\Portal\EmergencyAssistance.jsx:20:        className="px-5 py-2.5 rounded-xl bg-red-500 
+text-white text-sm font-medium hover:bg-red-400 transition"
+  src\pages\Patient\Portal\EmergencyAssistance.jsx:21:      >
+  src\pages\Patient\Portal\EmergencyAssistance.jsx:22:        Start Emergency Assessment
+  src\pages\Patient\Portal\EmergencyAssistance.jsx:23:      </button>
+  src\pages\Patient\Portal\EmergencyAssistance.jsx:24:    </section>
+  src\pages\Patient\Portal\Overview.jsx:36:    stage,
+  src\pages\Patient\Portal\Overview.jsx:37:    setStage,
+  src\pages\Patient\Portal\Overview.jsx:38:    risk,
+  src\pages\Patient\Portal\Overview.jsx:39:  } = useHealthData();
+  src\pages\Patient\Portal\Overview.jsx:40:
+> src\pages\Patient\Portal\Overview.jsx:41:  const navigate = useNavigate();
+  src\pages\Patient\Portal\Overview.jsx:42:
+  src\pages\Patient\Portal\Overview.jsx:43:  if (!latest) {
+  src\pages\Patient\Portal\Overview.jsx:44:    return (
+  src\pages\Patient\Portal\Overview.jsx:45:      <div className="text-white">
+  src\pages\Patient\Portal\Overview.jsx:46:        No health data available.
+  src\pages\Patient\Portal\Overview.jsx:255:              </p>
+  src\pages\Patient\Portal\Overview.jsx:256:
+  src\pages\Patient\Portal\Overview.jsx:257:
+  src\pages\Patient\Portal\Overview.jsx:258:              {isCritical && (
+  src\pages\Patient\Portal\Overview.jsx:259:                <button
+> src\pages\Patient\Portal\Overview.jsx:260:                  onClick={() => navigate("/patient/assessment")}
+  src\pages\Patient\Portal\Overview.jsx:261:                  className="mt-5 rounded-xl bg-orange-500 px-5 py-3 
+text-sm font-medium text-white hover:bg-orange-400 transition"
+  src\pages\Patient\Portal\Overview.jsx:262:                >
+  src\pages\Patient\Portal\Overview.jsx:263:                  Start Emergency Assistance →
+  src\pages\Patient\Portal\Overview.jsx:264:                </button>
+  src\pages\Patient\Portal\Overview.jsx:265:              )}
+  src\pages\Patient\Portal\Overview.jsx:360:
+  src\pages\Patient\Portal\Overview.jsx:361:        </div>
+  src\pages\Patient\Portal\Overview.jsx:362:
+  src\pages\Patient\Portal\Overview.jsx:363:
+  src\pages\Patient\Portal\Overview.jsx:364:        <button
+> src\pages\Patient\Portal\Overview.jsx:365:          onClick={() => navigate("/patient/dashboard/alerts")}
+  src\pages\Patient\Portal\Overview.jsx:366:          className="text-xs text-orange-400 hover:text-orange-300 
+transition"
+  src\pages\Patient\Portal\Overview.jsx:367:        >
+  src\pages\Patient\Portal\Overview.jsx:368:          View alerts →
+  src\pages\Patient\Portal\Overview.jsx:369:        </button>
+  src\pages\Patient\Portal\Overview.jsx:370:
+> src\pages\Patient\Assessment.jsx:1:import Assessment from "../../components/patient/Assessment";
+  src\pages\Patient\Assessment.jsx:2:
+  src\pages\Patient\Assessment.jsx:3:export default function AssessmentPage() {
+  src\pages\Patient\Assessment.jsx:4:  return <Assessment />;
+  src\pages\Patient\Assessment.jsx:5:}
+  src\routes\AppRoutes.jsx:14:import HospitalLogin from "../pages/Auth/HospitalLogin";
+  src\routes\AppRoutes.jsx:15:import HospitalRegister from "../pages/Auth/HospitalRegister";
+  src\routes\AppRoutes.jsx:16:
+  src\routes\AppRoutes.jsx:17:// Patient
+  src\routes\AppRoutes.jsx:18:import Dashboard from "../pages/Patient/Dashboard";
+> src\routes\AppRoutes.jsx:19:import Assessment from "../pages/Patient/Assessment";
+  src\routes\AppRoutes.jsx:20:import Loading from "../pages/Patient/Loading";
+  src\routes\AppRoutes.jsx:21:import Results from "../pages/Patient/Results";
+  src\routes\AppRoutes.jsx:22:import HospitalDetails from "../pages/Patient/HospitalDetails";
+  src\routes\AppRoutes.jsx:23:import History from "../pages/Patient/History";
+  src\routes\AppRoutes.jsx:24:import Profile from "../pages/Patient/Profile";
+  src\routes\AppRoutes.jsx:150:                {/* ==================== */}
+  src\routes\AppRoutes.jsx:151:                {/* EXISTING EMERGENCY    */}
+  src\routes\AppRoutes.jsx:152:                {/* ==================== */}
+  src\routes\AppRoutes.jsx:153:
+  src\routes\AppRoutes.jsx:154:                <Route
+> src\routes\AppRoutes.jsx:155:                    path="/patient/assessment"
+  src\routes\AppRoutes.jsx:156:                    element={
+  src\routes\AppRoutes.jsx:157:                        <ProtectedRoute role="patient">
+  src\routes\AppRoutes.jsx:158:                            <Assessment />
+  src\routes\AppRoutes.jsx:159:                        </ProtectedRoute>
+  src\routes\AppRoutes.jsx:160:                    }
+  src\routes\ProtectedRoute.jsx:9:            Loading...
+  src\routes\ProtectedRoute.jsx:10:        </div>;
+  src\routes\ProtectedRoute.jsx:11:    }
+  src\routes\ProtectedRoute.jsx:12:
+  src\routes\ProtectedRoute.jsx:13:    if (!user) {
+> src\routes\ProtectedRoute.jsx:14:        return <Navigate to={`/${role}/login`} replace />;
+  src\routes\ProtectedRoute.jsx:15:    }
+  src\routes\ProtectedRoute.jsx:16:
+  src\routes\ProtectedRoute.jsx:17:    if (profile?.role && profile.role !== role) {
+> src\routes\ProtectedRoute.jsx:18:        return <Navigate to="/" replace />;
+  src\routes\ProtectedRoute.jsx:19:    }
+  src\routes\ProtectedRoute.jsx:20:
+  src\routes\ProtectedRoute.jsx:21:    return children;
+  src\routes\ProtectedRoute.jsx:22:}
+  src\routes\ProtectedRoute.jsx:23:
+
+

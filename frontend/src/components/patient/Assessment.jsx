@@ -1,44 +1,36 @@
-import { useState } from "react";
+﻿import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import usePatientForm from "../../hooks/usePatientForm";
 import {
-  User,
-  MessageSquareText,
-  HeartPulse,
   Activity,
-  Thermometer,
-  ClipboardList,
   ArrowUpRight,
   ChevronDown,
-  Car,
-  Ambulance,
+  ClipboardList,
+  HeartPulse,
+  MessageSquareText,
+  User,
 } from "lucide-react";
 
-/* ------------------------------------------------------------------ */
-/* Presentational primitives                                          */
-/* ------------------------------------------------------------------ */
+/* ================================================================ */
+/* Reusable UI                                                       */
+/* ================================================================ */
 
 function Card({ icon: Icon, title, subtitle, children }) {
   return (
-    <section className="rounded-2xl border border-white/[0.08] bg-[#11151D] p-6 sm:p-8 lg:p-9 shadow-[0_12px_40px_-24px_rgba(0,0,0,0.65)]">
-      <div className="flex items-start gap-3.5 mb-7">
-        <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-white/[0.05] shrink-0">
-          <Icon
-            size={18}
-            strokeWidth={1.75}
-            className="text-white/75"
-          />
+    <section className="rounded-2xl border border-white/[0.08] bg-[#11151D] p-6 sm:p-8">
+      <div className="flex items-start gap-3.5 mb-6">
+        <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-white/[0.04] border border-white/[0.08] shrink-0">
+          <Icon size={17} strokeWidth={1.75} className="text-[#FF7A5C]" />
         </div>
 
         <div>
-          <h2 className="font-display font-semibold text-[17px] tracking-tightest text-white">
+          <h2 className="font-display font-semibold text-[16px] text-white tracking-tightest">
             {title}
           </h2>
 
-          {subtitle && (
-            <p className="text-[13.5px] text-white/40 mt-0.5">
-              {subtitle}
-            </p>
-          )}
+          <p className="text-[12.5px] text-white/35 mt-1">
+            {subtitle}
+          </p>
         </div>
       </div>
 
@@ -49,26 +41,26 @@ function Card({ icon: Icon, title, subtitle, children }) {
 
 function Field({ label, hint, children }) {
   return (
-    <label className="flex flex-col gap-2">
-      <span className="flex items-baseline justify-between">
-        <span className="text-[13.5px] font-medium text-white/70">
+    <div>
+      <div className="flex items-center justify-between gap-3 mb-2.5">
+        <label className="text-[13px] font-medium text-white/65">
           {label}
-        </span>
+        </label>
 
         {hint && (
-          <span className="font-mono text-[11px] text-white/30">
+          <span className="font-mono text-[10.5px] text-white/25">
             {hint}
           </span>
         )}
-      </span>
+      </div>
 
       {children}
-    </label>
+    </div>
   );
 }
 
 const inputClass =
-  "w-full rounded-xl border border-white/[0.1] bg-white/[0.035] px-4 py-3 text-[14.5px] text-white placeholder:text-white/25 outline-none transition-all focus:border-[#FF5A36]/60 focus:bg-white/[0.055] focus:ring-1 focus:ring-[#FF5A36]/20";
+  "w-full rounded-xl border border-white/[0.1] bg-white/[0.035] px-4 py-3 text-[14px] text-white placeholder:text-white/25 outline-none transition-colors focus:border-[#FF5A36]/50 focus:bg-white/[0.05]";
 
 function Select({ value, onChange, options, placeholder }) {
   return (
@@ -80,20 +72,12 @@ function Select({ value, onChange, options, placeholder }) {
           value ? "text-white" : "text-white/30"
         }`}
       >
-        <option
-          value=""
-          disabled
-          className="bg-[#11151D] text-white"
-        >
+        <option value="" disabled>
           {placeholder}
         </option>
 
         {options.map((option) => (
-          <option
-            key={option.value}
-            value={option.value}
-            className="bg-[#11151D] text-white"
-          >
+          <option key={option.value} value={option.value}>
             {option.label}
           </option>
         ))}
@@ -143,9 +127,9 @@ function SegmentedControl({
   );
 }
 
-/* ------------------------------------------------------------------ */
-/* Assessment configuration                                           */
-/* ------------------------------------------------------------------ */
+/* ================================================================ */
+/* Assessment configuration                                          */
+/* ================================================================ */
 
 const STEPS = [
   "Symptom Intake",
@@ -206,21 +190,6 @@ const BREATHING_OPTIONS = [
   },
 ];
 
-/*
- * Arrival-mode values come from the training dataset:
- *
- * 1 = Walking
- * 2 = Public Ambulance
- * 3 = Private Vehicle
- * 4 = Private Ambulance
- * 5-7 = Other
- *
- * UI simplifies this into:
- *
- * Self-arrival = 3
- * Ambulance    = 2
- */
-
 const ARRIVAL_MODE = {
   SELF: "SELF",
   AMBULANCE: "AMBULANCE",
@@ -231,9 +200,9 @@ const ARRIVAL_MODE_MODEL_VALUES = {
   AMBULANCE: 2,
 };
 
-/* ------------------------------------------------------------------ */
-/* Assessment page                                                    */
-/* ------------------------------------------------------------------ */
+/* ================================================================ */
+/* Assessment                                                        */
+/* ================================================================ */
 
 export default function Assessment() {
   const {
@@ -242,6 +211,20 @@ export default function Assessment() {
     handleChange,
     submitForm,
   } = usePatientForm();
+
+  const location = useLocation();
+
+  /*
+   * Portal entry is ONLY true when the patient came from
+   * the authenticated monitoring dashboard.
+   *
+   * Public/landing assessment does not contain this state,
+   * so the existing manual workflow remains unchanged.
+   */
+  const fromPatientPortal =
+    location.state?.fromPatientPortal === true;
+
+  const portalVitals = location.state?.vitals;
 
   const [gender, setGender] = useState("");
   const [symptoms, setSymptoms] = useState("");
@@ -260,15 +243,73 @@ export default function Assessment() {
   const [allergies, setAllergies] = useState("");
   const [conditions, setConditions] = useState("");
 
+  /* ============================================================ */
+  /* PREFILL FROM PATIENT MONITORING                               */
+  /* ============================================================ */
+
+  useEffect(() => {
+    if (!fromPatientPortal || !portalVitals) {
+      return;
+    }
+
+    /*
+     * Known from wearable/monitoring data:
+     *
+     * heart_rate  -> hr
+     * spo2        -> saturation
+     * temperature -> bt
+     *
+     * We intentionally DO NOT invent:
+     * respiratory rate
+     * blood pressure
+     */
+
+    if (portalVitals.heart_rate != null) {
+      handleChange(
+        "hr",
+        Number(portalVitals.heart_rate)
+      );
+    }
+
+    if (portalVitals.spo2 != null) {
+      handleChange(
+        "saturation",
+        Number(portalVitals.spo2)
+      );
+    }
+
+    if (portalVitals.temperature != null) {
+      handleChange(
+        "bt",
+        Number(portalVitals.temperature)
+      );
+    }
+
+    /*
+     * Show the vitals section because we already have
+     * measured monitoring data.
+     */
+    setHasVitals(true);
+
+    handleChange(
+      "saturation_missing",
+      0
+    );
+  }, [
+    fromPatientPortal,
+    portalVitals,
+    handleChange,
+  ]);
+
   const isAmbulance =
     arrivalMode === ARRIVAL_MODE.AMBULANCE;
 
   const isSelfArrival =
     arrivalMode === ARRIVAL_MODE.SELF;
 
-  /* -------------------------------------------------------------- */
-  /* Helpers                                                        */
-  /* -------------------------------------------------------------- */
+  /* ============================================================ */
+  /* HELPERS                                                       */
+  /* ============================================================ */
 
   const clearVitals = () => {
     handleChange("sbp", null);
@@ -288,14 +329,29 @@ export default function Assessment() {
     );
 
     if (value === ARRIVAL_MODE.SELF) {
-      setHasVitals(false);
+      /*
+       * For a public/manual assessment this preserves
+       * the original behaviour.
+       *
+       * For a patient coming from the monitoring portal,
+       * don't destroy the known wearable vitals.
+       */
+      if (!fromPatientPortal) {
+        setHasVitals(false);
+        clearVitals();
 
-      clearVitals();
+        handleChange(
+          "saturation_missing",
+          1
+        );
+      } else {
+        setHasVitals(true);
 
-      handleChange(
-        "saturation_missing",
-        1
-      );
+        handleChange(
+          "saturation_missing",
+          0
+        );
+      }
     }
 
     if (value === ARRIVAL_MODE.AMBULANCE) {
@@ -312,17 +368,12 @@ export default function Assessment() {
     setGender(value);
 
     /*
-     * IMPORTANT:
-     * The trained dataset uses:
+     * Existing model encoding:
      *
-     * 1 = Female
-     * 2 = Male
+     * Female = 1
+     * Male   = 2
      *
-     * We do NOT invent a new numeric value for "Other"
-     * because that would be outside the model's training data.
-     *
-     * Other therefore falls back to Female's encoded value
-     * rather than sending an unsupported value to the model.
+     * Other falls back to Female's supported encoding.
      */
     if (value === "male") {
       handleChange("sex", 2);
@@ -334,7 +385,10 @@ export default function Assessment() {
   const handlePainChange = (value) => {
     setPain(value);
 
-    handleChange("nrs_pain", value);
+    handleChange(
+      "nrs_pain",
+      value
+    );
 
     handleChange(
       "pain",
@@ -358,6 +412,17 @@ export default function Assessment() {
     );
   };
 
+  const handleBreathingChange = (value) => {
+    setBreathing(value);
+
+    /*
+     * Keep the UI selection locally.
+     *
+     * The existing model does not require us to invent
+     * a new numeric field for this UI value.
+     */
+  };
+
   const handleVitalChange = (field, value) => {
     if (value === "") {
       handleChange(field, null);
@@ -370,20 +435,20 @@ export default function Assessment() {
     );
   };
 
-  /* -------------------------------------------------------------- */
-  /* Submit                                                         */
-  /* -------------------------------------------------------------- */
-
   const handleSubmit = async () => {
     await submitForm();
   };
 
+  /* ============================================================ */
+  /* RENDER                                                         */
+  /* ============================================================ */
+
   return (
     <div className="min-h-screen bg-[#0B0D12] pb-28 text-white">
 
-      {/* ========================================================== */}
+      {/* ======================================================== */}
       {/* HEADER                                                     */}
-      {/* ========================================================== */}
+      {/* ======================================================== */}
 
       <header className="border-b border-white/[0.08] bg-[#0D1016]">
 
@@ -431,9 +496,9 @@ export default function Assessment() {
 
       </header>
 
-      {/* ========================================================== */}
+      {/* ======================================================== */}
       {/* PROGRESS                                                   */}
-      {/* ========================================================== */}
+      {/* ======================================================== */}
 
       <div className="sticky top-0 z-40 bg-[#0B0D12]/90 backdrop-blur-md border-b border-white/[0.07]">
 
@@ -457,7 +522,7 @@ export default function Assessment() {
                       className={`flex items-center justify-center h-6 w-6 rounded-full border font-mono text-[11px] shrink-0 ${
                         active
                           ? "border-[#FF5A36] bg-[#FF5A36] text-white"
-                          : "border-white/15 text-white/30"
+                          : "border-white/15 text-white/25"
                       }`}
                     >
                       {index + 1}
@@ -467,7 +532,7 @@ export default function Assessment() {
                       className={`text-[13px] font-medium hidden sm:inline whitespace-nowrap ${
                         active
                           ? "text-white"
-                          : "text-white/30"
+                          : "text-white/25"
                       }`}
                     >
                       {step}
@@ -476,7 +541,7 @@ export default function Assessment() {
                   </div>
 
                   {index < STEPS.length - 1 && (
-                    <span className="flex-1 h-px bg-white/10 mx-3" />
+                    <span className="flex-1 h-px bg-white/[0.08] mx-3" />
                   )}
 
                 </div>
@@ -489,42 +554,70 @@ export default function Assessment() {
 
       </div>
 
-      {/* ========================================================== */}
-      {/* MAIN                                                       */}
-      {/* ========================================================== */}
+      {/* ======================================================== */}
+      {/* MAIN CONTENT                                               */}
+      {/* ======================================================== */}
 
       <div className="max-w-6xl mx-auto px-5 sm:px-6 lg:px-8 pt-10">
 
-        {/* Intro */}
-
-        <div className="mb-10 max-w-3xl">
+        <div className="mb-10">
 
           <div className="flex items-center gap-2.5 mb-3">
 
-            <span className="h-1.5 w-1.5 rounded-full bg-[#FF5A36] animate-pulse-soft" />
+            <span className="h-1.5 w-1.5 rounded-full bg-[#FF5A36] animate-pulse" />
 
-            <span className="font-mono text-[12px] uppercase tracking-[0.14em] text-white/35">
+            <span className="font-mono text-[12px] uppercase tracking-[0.14em] text-white/30">
               Emergency Assessment
             </span>
 
           </div>
 
-          <h1 className="font-display font-semibold text-[clamp(1.6rem,3vw,2.1rem)] tracking-tightest text-white text-balance">
+          <h1 className="font-display font-semibold text-[clamp(1.6rem,3vw,2.1rem)] tracking-tightest text-white">
             Tell us what's happening.
           </h1>
 
-          <p className="text-[15px] text-white/45 mt-2 max-w-lg">
+          <p className="text-[15px] text-white/40 mt-2 max-w-lg">
             A few details help LifeRoute route you accurately.
-            Only provide information you know.
+            Skip anything you don't know — an estimate is still useful.
           </p>
+
+          {fromPatientPortal && (
+            <div className="mt-5 rounded-xl border border-[#FF5A36]/20 bg-[#FF5A36]/[0.06] px-4 py-3">
+
+              <div className="flex items-start gap-3">
+
+                <Activity
+                  size={16}
+                  className="text-[#FF7A5C] mt-0.5 shrink-0"
+                />
+
+                <div>
+
+                  <p className="text-[13px] font-medium text-[#FF7A5C]">
+                    Monitoring data detected
+                  </p>
+
+                  <p className="text-[12px] text-white/40 mt-1">
+                    Your latest heart rate, SpO₂ and temperature
+                    have been prefilled from LifeRoute monitoring.
+                    Please complete the information we cannot
+                    measure automatically.
+                  </p>
+
+                </div>
+
+              </div>
+
+            </div>
+          )}
 
         </div>
 
         <div className="flex flex-col gap-6">
 
-          {/* ====================================================== */}
-          {/* PATIENT INFORMATION                                    */}
-          {/* ====================================================== */}
+          {/* ==================================================== */}
+          {/* PATIENT INFORMATION                                  */}
+          {/* ==================================================== */}
 
           <Card
             icon={User}
@@ -533,8 +626,6 @@ export default function Assessment() {
           >
 
             <div className="grid lg:grid-cols-2 gap-6">
-
-              {/* Age */}
 
               <Field
                 label="Age"
@@ -546,7 +637,7 @@ export default function Assessment() {
                   min="0"
                   max="120"
                   placeholder="e.g. 34"
-                  value={formData.age}
+                  value={formData.age ?? ""}
                   onChange={(event) => {
 
                     const value =
@@ -558,13 +649,12 @@ export default function Assessment() {
                         ? ""
                         : Number(value)
                     );
+
                   }}
                   className={inputClass}
                 />
 
               </Field>
-
-              {/* Gender */}
 
               <Field label="Gender">
 
@@ -579,9 +669,7 @@ export default function Assessment() {
 
             </div>
 
-            {/* ---------------------------------------------------- */}
-            {/* Arrival mode                                          */}
-            {/* ---------------------------------------------------- */}
+            {/* Arrival mode */}
 
             <div className="mt-8">
 
@@ -599,7 +687,7 @@ export default function Assessment() {
 
               <div className="grid md:grid-cols-2 gap-4">
 
-                {/* Self-arrival */}
+                {/* Self arrival */}
 
                 <button
                   type="button"
@@ -610,38 +698,17 @@ export default function Assessment() {
                   }
                   className={`text-left rounded-2xl border p-5 transition-all duration-200 ${
                     isSelfArrival
-                      ? "border-[#FF5A36]/50 bg-[#FF5A36]/[0.10] ring-1 ring-[#FF5A36]/20"
-                      : "border-white/[0.1] bg-white/[0.035] hover:border-white/20 hover:bg-white/[0.055]"
+                      ? "border-[#FF5A36]/50 bg-[#FF5A36]/[0.08]"
+                      : "border-white/[0.08] bg-white/[0.025] hover:border-white/15"
                   }`}
                 >
 
-                  <div className="flex items-center gap-3">
+                  <div className="font-medium text-[14px] text-white/80">
+                    Self-arrival
+                  </div>
 
-                    <div
-                      className={`flex items-center justify-center h-11 w-11 rounded-xl ${
-                        isSelfArrival
-                          ? "bg-[#FF5A36] text-white"
-                          : "bg-white/[0.06] text-white/60"
-                      }`}
-                    >
-                      <Car
-                        size={20}
-                        strokeWidth={1.8}
-                      />
-                    </div>
-
-                    <div>
-
-                      <div className="font-display font-semibold text-[15px] text-white">
-                        Self-arrival
-                      </div>
-
-                      <div className="text-[12.5px] text-white/30 mt-0.5">
-                        Family, friends, or personal transport
-                      </div>
-
-                    </div>
-
+                  <div className="text-[12.5px] text-white/30 mt-1">
+                    Arriving by private vehicle or independently
                   </div>
 
                 </button>
@@ -657,38 +724,17 @@ export default function Assessment() {
                   }
                   className={`text-left rounded-2xl border p-5 transition-all duration-200 ${
                     isAmbulance
-                      ? "border-[#FF5A36]/50 bg-[#FF5A36]/[0.10] ring-1 ring-[#FF5A36]/20"
-                      : "border-white/[0.1] bg-white/[0.035] hover:border-white/20 hover:bg-white/[0.055]"
+                      ? "border-[#FF5A36]/50 bg-[#FF5A36]/[0.08]"
+                      : "border-white/[0.08] bg-white/[0.025] hover:border-white/15"
                   }`}
                 >
 
-                  <div className="flex items-center gap-3">
+                  <div className="font-medium text-[14px] text-white/80">
+                    Ambulance
+                  </div>
 
-                    <div
-                      className={`flex items-center justify-center h-11 w-11 rounded-xl ${
-                        isAmbulance
-                          ? "bg-[#FF5A36] text-white"
-                          : "bg-white/[0.06] text-white/60"
-                      }`}
-                    >
-                      <Ambulance
-                        size={20}
-                        strokeWidth={1.8}
-                      />
-                    </div>
-
-                    <div>
-
-                      <div className="font-display font-semibold text-[15px] text-white">
-                        Ambulance
-                      </div>
-
-                      <div className="text-[12.5px] text-white/30 mt-0.5">
-                        Being transported by emergency services
-                      </div>
-
-                    </div>
-
+                  <div className="text-[12.5px] text-white/30 mt-1">
+                    Being transported by emergency services
                   </div>
 
                 </button>
@@ -699,9 +745,9 @@ export default function Assessment() {
 
           </Card>
 
-          {/* ====================================================== */}
-          {/* SYMPTOMS                                                */}
-          {/* ====================================================== */}
+          {/* ==================================================== */}
+          {/* SYMPTOMS                                               */}
+          {/* ==================================================== */}
 
           <Card
             icon={MessageSquareText}
@@ -718,7 +764,7 @@ export default function Assessment() {
                 rows={5}
                 maxLength={500}
                 placeholder="e.g. Sharp chest pain since 20 minutes ago, worse when breathing in..."
-                value={formData.chief_complain}
+                value={formData.chief_complain ?? ""}
                 onChange={(event) => {
 
                   const value =
@@ -730,6 +776,7 @@ export default function Assessment() {
                     "chief_complain",
                     value
                   );
+
                 }}
                 className={`${inputClass} resize-none`}
               />
@@ -738,9 +785,9 @@ export default function Assessment() {
 
           </Card>
 
-          {/* ====================================================== */}
-          {/* CONDITION                                               */}
-          {/* ====================================================== */}
+          {/* ==================================================== */}
+          {/* CURRENT CONDITION                                     */}
+          {/* ==================================================== */}
 
           <Card
             icon={HeartPulse}
@@ -788,7 +835,7 @@ export default function Assessment() {
 
               </Field>
 
-              {/* Consciousness + Breathing */}
+              {/* Consciousness + breathing */}
 
               <div className="grid lg:grid-cols-2 gap-6">
 
@@ -799,10 +846,8 @@ export default function Assessment() {
                     onChange={
                       handleConsciousnessChange
                     }
-                    options={
-                      CONSCIOUSNESS_OPTIONS
-                    }
-                    placeholder="Select a state"
+                    options={CONSCIOUSNESS_OPTIONS}
+                    placeholder="Select condition"
                   />
 
                 </Field>
@@ -811,9 +856,11 @@ export default function Assessment() {
 
                   <Select
                     value={breathing}
-                    onChange={setBreathing}
+                    onChange={
+                      handleBreathingChange
+                    }
                     options={BREATHING_OPTIONS}
-                    placeholder="Select a pattern"
+                    placeholder="Select breathing status"
                   />
 
                 </Field>
@@ -824,373 +871,270 @@ export default function Assessment() {
 
           </Card>
 
-          {/* ====================================================== */}
-          {/* VITALS                                                  */}
-          {/* ====================================================== */}
+          {/* ==================================================== */}
+          {/* VITALS                                                 */}
+          {/* ==================================================== */}
 
-          <Card
-            icon={Activity}
-            title="Vitals"
-            subtitle={
-              isAmbulance
-                ? "Enter the patient's measured vital signs"
-                : "Only enter these if you have measured values"
-            }
-          >
+          {(isAmbulance || hasVitals) && (
 
-            {isSelfArrival && !hasVitals && (
+            <Card
+              icon={Activity}
+              title="Vital Signs"
+              subtitle={
+                fromPatientPortal
+                  ? "Latest vitals detected from LifeRoute monitoring"
+                  : "Measured values available for this assessment"
+              }
+            >
 
-              <div className="rounded-2xl border border-white/[0.08] bg-white/[0.035] p-5">
+              {fromPatientPortal && (
 
-                <div className="mb-4">
+                <div className="mb-5 rounded-xl border border-emerald-400/15 bg-emerald-400/[0.04] px-4 py-3">
 
-                  <h3 className="font-display font-semibold text-[15px] text-white">
-                    Do you have measured vital signs?
-                  </h3>
+                  <p className="text-[12px] text-emerald-300/80">
+                    Automatically detected
+                  </p>
 
-                  <p className="text-[13px] text-white/35 mt-1">
-                    If you don't have them, that's okay. LifeRoute
-                    can continue using the information you know.
+                  <p className="text-[11.5px] text-white/35 mt-1">
+                    Heart rate, SpO₂ and temperature were obtained
+                    from the patient's monitoring data.
                   </p>
 
                 </div>
 
-                <div className="grid sm:grid-cols-2 gap-3">
+              )}
 
-                  {/* YES */}
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
 
-                  <button
-                    type="button"
-                    onClick={() => {
+                {/* Heart rate */}
 
-                      setHasVitals(true);
+                <Field
+                  label="Heart rate"
+                  hint="bpm"
+                >
 
-                      handleChange(
-                        "saturation_missing",
-                        0
-                      );
-                    }}
-                    className={`rounded-xl border px-4 py-3 text-[13.5px] font-medium transition-all duration-200 ${
-                      hasVitals
-                        ? "border-[#FF5A36]/50 bg-[#FF5A36]/[0.08] text-[#FF7A5C] ring-1 ring-[#FF5A36]/20"
-                        : "border-white/[0.1] bg-white/[0.035] text-white/65 hover:border-[#FF5A36]/40 hover:bg-white/[0.05]"
-                    }`}
-                  >
+                  <input
+                    type="number"
+                    min="0"
+                    max="250"
+                    placeholder="e.g. 82"
+                    value={formData.hr ?? ""}
+                    onChange={(event) =>
+                      handleVitalChange(
+                        "hr",
+                        event.target.value
+                      )
+                    }
+                    className={inputClass}
+                  />
 
-                    <span className="flex items-center justify-center gap-2">
+                  {fromPatientPortal &&
+                    formData.hr != null && (
+                      <p className="text-[10.5px] text-emerald-300/60 mt-1.5">
+                        Detected from monitoring
+                      </p>
+                    )}
 
-                      {hasVitals && (
-                        <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#FF5A36] text-white text-[10px]">
-                          ✓
-                        </span>
-                      )}
+                </Field>
 
-                      Yes, I have them
+                {/* Respiratory rate */}
 
-                    </span>
+                <Field
+                  label="Respiratory rate"
+                  hint="breaths/min"
+                >
 
-                  </button>
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    placeholder="e.g. 18"
+                    value={formData.rr ?? ""}
+                    onChange={(event) =>
+                      handleVitalChange(
+                        "rr",
+                        event.target.value
+                      )
+                    }
+                    className={inputClass}
+                  />
 
-                  {/* NO */}
+                  <p className="text-[10.5px] text-white/25 mt-1.5">
+                    Enter if known
+                  </p>
 
-                  <button
-                    type="button"
-                    onClick={() => {
+                </Field>
 
-                      setHasVitals(false);
+                {/* Temperature */}
 
-                      clearVitals();
+                <Field
+                  label="Temperature"
+                  hint="°C"
+                >
 
-                      handleChange(
-                        "saturation_missing",
-                        1
-                      );
-                    }}
-                    className={`rounded-xl border px-4 py-3 text-[13.5px] font-medium transition-all duration-200 ${
-                      !hasVitals
-                        ? "border-[#FF5A36]/50 bg-[#FF5A36]/[0.08] text-[#FF7A5C] ring-1 ring-[#FF5A36]/20"
-                        : "border-white/[0.1] bg-white/[0.035] text-white/65 hover:border-[#FF5A36]/40 hover:bg-white/[0.05]"
-                    }`}
-                  >
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="25"
+                    max="45"
+                    placeholder="e.g. 37.0"
+                    value={formData.bt ?? ""}
+                    onChange={(event) =>
+                      handleVitalChange(
+                        "bt",
+                        event.target.value
+                      )
+                    }
+                    className={inputClass}
+                  />
 
-                    <span className="flex items-center justify-center gap-2">
+                  {fromPatientPortal &&
+                    formData.bt != null && (
+                      <p className="text-[10.5px] text-emerald-300/60 mt-1.5">
+                        Detected from monitoring
+                      </p>
+                    )}
 
-                      {!hasVitals && (
-                        <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#FF5A36] text-white text-[10px]">
-                          ✓
-                        </span>
-                      )}
+                </Field>
 
-                      No, I don't
+                {/* Systolic BP */}
 
-                    </span>
+                <Field
+                  label="Blood pressure"
+                  hint="systolic"
+                >
 
-                  </button>
+                  <input
+                    type="number"
+                    min="0"
+                    max="300"
+                    placeholder="e.g. 120"
+                    value={formData.sbp ?? ""}
+                    onChange={(event) =>
+                      handleVitalChange(
+                        "sbp",
+                        event.target.value
+                      )
+                    }
+                    className={inputClass}
+                  />
 
-                </div>
+                  <p className="text-[10.5px] text-white/25 mt-1.5">
+                    Systolic mmHg
+                  </p>
+
+                </Field>
+
+                {/* Diastolic BP */}
+
+                <Field
+                  label="Blood pressure"
+                  hint="diastolic"
+                >
+
+                  <input
+                    type="number"
+                    min="0"
+                    max="200"
+                    placeholder="e.g. 80"
+                    value={formData.dbp ?? ""}
+                    onChange={(event) =>
+                      handleVitalChange(
+                        "dbp",
+                        event.target.value
+                      )
+                    }
+                    className={inputClass}
+                  />
+
+                  <p className="text-[10.5px] text-white/25 mt-1.5">
+                    Diastolic mmHg
+                  </p>
+
+                </Field>
+
+                {/* SpO2 */}
+
+                <Field
+                  label="Oxygen saturation"
+                  hint="%"
+                >
+
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    placeholder="e.g. 98"
+                    value={formData.saturation ?? ""}
+                    onChange={(event) =>
+                      handleVitalChange(
+                        "saturation",
+                        event.target.value
+                      )
+                    }
+                    className={inputClass}
+                  />
+
+                  {fromPatientPortal &&
+                    formData.saturation != null && (
+                      <p className="text-[10.5px] text-emerald-300/60 mt-1.5">
+                        Detected from monitoring
+                      </p>
+                    )}
+
+                </Field>
 
               </div>
 
-            )}
+              <div className="mt-6 flex items-center justify-between gap-4">
 
-            {isSelfArrival && !hasVitals && (
-
-              <div className="mt-4 rounded-xl border border-[#FF5A36]/20 bg-[#FF5A36]/[0.04] px-4 py-3">
-
-                <p className="text-[13px] text-white/45">
-                  No problem. You can continue without measured
-                  vital signs.
+                <p className="text-[11.5px] text-white/25">
+                  Only enter values you know. Do not guess measurements.
                 </p>
 
-              </div>
-
-            )}
-
-            {(isAmbulance || hasVitals) && (
-
-              <div className="flex flex-col gap-5">
-
-                {isSelfArrival && hasVitals && (
-
-                  <div className="flex items-center justify-between rounded-xl border border-[#FF5A36]/20 bg-[#FF5A36]/[0.04] px-4 py-3">
-
-                    <p className="text-[13px] text-white/45">
-                      Measured vital signs
-                    </p>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-
-                        setHasVitals(false);
-
-                        clearVitals();
-
-                        handleChange(
-                          "saturation_missing",
-                          1
-                        );
-                      }}
-                      className="text-[12px] font-medium text-[#FF7A5C] hover:text-[#FF8B70] hover:underline"
-                    >
-                      Remove
-                    </button>
-
-                  </div>
-
-                )}
-
-                <div className="grid md:grid-cols-3 gap-5">
-
-                  {/* Heart rate */}
-
-                  <Field
-                    label="Heart rate"
-                    hint="bpm"
-                  >
-
-                    <div className="relative">
-
-                      <Activity
-                        size={15}
-                        strokeWidth={1.75}
-                        className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/30"
-                      />
-
-                      <input
-                        type="number"
-                        placeholder="72"
-                        value={
-                          formData.hr ?? ""
-                        }
-                        onChange={(event) =>
-                          handleVitalChange(
-                            "hr",
-                            event.target.value
-                          )
-                        }
-                        className={`${inputClass} pl-10`}
-                      />
-
-                    </div>
-
-                  </Field>
-
-                  {/* Respiratory rate */}
-
-                  <Field
-                    label="Respiratory rate"
-                    hint="breaths/min"
-                  >
-
-                    <input
-                      type="number"
-                      placeholder="18"
-                      value={
-                        formData.rr ?? ""
-                      }
-                      onChange={(event) =>
-                        handleVitalChange(
-                          "rr",
-                          event.target.value
-                        )
-                      }
-                      className={inputClass}
-                    />
-
-                  </Field>
-
-                  {/* Temperature */}
-
-                  <Field
-                    label="Temperature"
-                    hint="°F"
-                  >
-
-                    <div className="relative">
-
-                      <Thermometer
-                        size={15}
-                        strokeWidth={1.75}
-                        className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/30"
-                      />
-
-                      <input
-                        type="number"
-                        step="0.1"
-                        placeholder="98.6"
-                        value={
-                          formData.bt ?? ""
-                        }
-                        onChange={(event) =>
-                          handleVitalChange(
-                            "bt",
-                            event.target.value
-                          )
-                        }
-                        className={`${inputClass} pl-10`}
-                      />
-
-                    </div>
-
-                  </Field>
-
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-5">
-
-                  {/* Blood pressure */}
-
-                  <Field
-                    label="Blood pressure"
-                    hint="mmHg"
-                  >
-
-                    <div className="flex items-center gap-2">
-
-                      <input
-                        type="number"
-                        placeholder="120"
-                        value={
-                          formData.sbp ?? ""
-                        }
-                        onChange={(event) =>
-                          handleVitalChange(
-                            "sbp",
-                            event.target.value
-                          )
-                        }
-                        className={inputClass}
-                      />
-
-                      <span className="text-white/30 font-mono text-[13px]">
-                        /
-                      </span>
-
-                      <input
-                        type="number"
-                        placeholder="80"
-                        value={
-                          formData.dbp ?? ""
-                        }
-                        onChange={(event) =>
-                          handleVitalChange(
-                            "dbp",
-                            event.target.value
-                          )
-                        }
-                        className={inputClass}
-                      />
-
-                    </div>
-
-                  </Field>
-
-                  {/* Oxygen */}
-
-                  <Field
-                    label="Oxygen saturation"
-                    hint="%"
-                  >
-
-                    <input
-                      type="number"
-                      min="0"
-                      max="100"
-                      placeholder="98"
-                      value={
-                        formData.saturation ?? ""
-                      }
-                      onChange={(event) =>
-                        handleVitalChange(
-                          "saturation",
-                          event.target.value
-                        )
-                      }
-                      className={inputClass}
-                    />
-
-                  </Field>
-
-                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    clearVitals();
+                    setHasVitals(false);
+                    handleChange(
+                      "saturation_missing",
+                      1
+                    );
+                  }}
+                  className="text-[11.5px] text-white/35 hover:text-white/60 transition-colors shrink-0"
+                >
+                  Clear vitals
+                </button>
 
               </div>
 
-            )}
+            </Card>
 
-          </Card>
+          )}
 
-          {/* ====================================================== */}
-          {/* INJURY & HISTORY                                       */}
-          {/* ====================================================== */}
+          {/* ==================================================== */}
+          {/* INJURY + HISTORY                                      */}
+          {/* ==================================================== */}
 
           <Card
             icon={ClipboardList}
             title="Injury & History"
-            subtitle="Anything responders should know"
+            subtitle="Anything responders should know in advance"
           >
 
             <div className="flex flex-col gap-5">
 
-              {/* Injury */}
-
-              <label className="flex items-center gap-3 rounded-xl border border-white/[0.1] bg-white/[0.035] px-4 py-3.5 cursor-pointer hover:bg-white/[0.05] transition-colors">
+              <label className="flex items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.025] px-4 py-3.5 cursor-pointer">
 
                 <input
                   type="checkbox"
                   checked={hasInjury}
-                  onChange={(event) => {
-
-                    const checked =
-                      event.target.checked;
-
-                    setHasInjury(checked);
-
-                    handleChange(
-                      "injury",
-                      checked ? 2 : 1
-                    );
-                  }}
+                  onChange={(event) =>
+                    setHasInjury(
+                      event.target.checked
+                    )
+                  }
                   className="h-4.5 w-4.5 rounded-md border-white/20 text-[#FF5A36] accent-[#FF5A36]"
                 />
 
@@ -1199,8 +1143,6 @@ export default function Assessment() {
                 </span>
 
               </label>
-
-              {/* Allergies */}
 
               <Field label="Allergies">
 
@@ -1217,8 +1159,6 @@ export default function Assessment() {
                 />
 
               </Field>
-
-              {/* Existing conditions */}
 
               <Field label="Existing conditions">
 
@@ -1246,6 +1186,30 @@ export default function Assessment() {
         {/* CONTINUE                                                  */}
         {/* ======================================================== */}
 
+        {Object.keys(errors || {}).length > 0 && (
+
+          <div className="mt-6 rounded-xl border border-red-400/20 bg-red-400/[0.05] px-4 py-3">
+
+            <p className="text-[12.5px] text-red-300">
+              Please check the highlighted assessment information
+              before continuing.
+            </p>
+
+            {Object.entries(errors).map(
+              ([key, value]) => (
+                <p
+                  key={key}
+                  className="text-[11.5px] text-red-300/60 mt-1"
+                >
+                  {value}
+                </p>
+              )
+            )}
+
+          </div>
+
+        )}
+
         <div className="mt-8 flex flex-col sm:flex-row items-center gap-4">
 
           <button
@@ -1253,6 +1217,7 @@ export default function Assessment() {
             onClick={handleSubmit}
             className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-[#FF5A36] px-8 py-4 text-[15px] font-medium text-white transition-all duration-300 hover:bg-[#FF6B4A] active:scale-[0.98] shadow-[0_8px_24px_-8px_rgba(255,90,54,0.55)]"
           >
+
             Continue Assessment
 
             <ArrowUpRight
