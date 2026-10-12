@@ -1,404 +1,584 @@
-<div align="center">
+::: {align="center"}
+# 🚑 LifeRoute 2.0
 
-# LifeRoute
-
-### AI-Powered Emergency Triage & Intelligent Hospital Routing Platform
+### AI-Powered Emergency Triage, Wearable Vital Monitoring & Intelligent Hospital Routing
 
 **The Right Care. At The Right Time.**
 
-LifeRoute is an intelligent emergency healthcare platform that leverages Artificial Intelligence to assess patient severity, allocate medical resources, and recommend the most suitable hospital in real time.
+LifeRoute 2.0 combines AI-assisted emergency assessment with a
+hardware-based wearable prototype that collects vital-sign and activity
+data. The platform is designed to help assess a patient's condition,
+estimate required medical resources, and recommend a suitable hospital
+using resource compatibility, availability data, distance, and estimated
+travel time.
+:::
 
----
+```{=html}
+<p align="center">
+```
+`<img src="https://img.shields.io/badge/Frontend-React-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React">`{=html}
+`<img src="https://img.shields.io/badge/Build-Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite">`{=html}
+`<img src="https://img.shields.io/badge/Backend-FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI">`{=html}
+`<img src="https://img.shields.io/badge/Database-Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black" alt="Firebase">`{=html}
+`<img src="https://img.shields.io/badge/Hardware-ESP32-E7352C?style=for-the-badge&logo=espressif&logoColor=white" alt="ESP32">`{=html}
+`<img src="https://img.shields.io/badge/Routing-OpenRouteService-5C8D89?style=for-the-badge" alt="OpenRouteService">`{=html}
+```{=html}
+</p>
+```
 
-![React](https://img.shields.io/badge/Frontend-React-61DAFB?style=for-the-badge&logo=react)
-![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?style=for-the-badge&logo=fastapi)
-![Python](https://img.shields.io/badge/Python-3.11-blue?style=for-the-badge&logo=python)
-![Firebase](https://img.shields.io/badge/Database-Firebase-FFCA28?style=for-the-badge&logo=firebase)
-![AI](https://img.shields.io/badge/AI-Powered-orange?style=for-the-badge)
+------------------------------------------------------------------------
 
-</div>
+## 📌 Overview
 
----
+During an emergency, the nearest hospital is not always the most
+suitable one. A patient may need a specialist, ICU support, respiratory
+support, or trauma care that is not available at the closest facility.
 
-# 📌 Overview
+**LifeRoute 2.0 adds a hardware-based vital-monitoring layer to
+LifeRoute's resource-aware emergency routing workflow.** The wearable
+prototype is built around an ESP32 and sensor modules intended to
+capture pulse/SpO₂, temperature, and movement-related readings. Readings
+can be sent to the FastAPI backend and stored in Firebase/Cloud
+Firestore for retrieval by patient and device.
 
-Emergency medical decisions often rely on sending patients to the nearest hospital rather than the **most capable** one.
+The platform combines:
 
-LifeRoute changes that.
+-   Wearable-based vital data collection (hardware prototype)
+-   Emergency assessment and KTAS-based triage logic
+-   Medical complaint classification and resource prediction
+-   Hospital capability matching and ranking
+-   Distance and estimated travel time (ETA) calculation
+-   Patient and hospital application workflows
 
-Instead of considering only distance, LifeRoute evaluates:
+> **Important:** LifeRoute 2.0 is a prototype for educational, research,
+> and hackathon use. It is not a certified medical device, and its
+> readings or recommendations must not be used as a substitute for
+> professional medical assessment or emergency services.
 
-- Patient symptoms
-- Vital signs
-- KTAS (Korean Triage & Acuity Scale)
-- Required medical resources
-- Hospital capability
-- Distance
-- Estimated Travel Time (ETA)
+## 🎯 Problem Statement
 
-before recommending the hospital best equipped to provide immediate care.
+Conventional hospital-finder applications often prioritize proximity
+without adequately considering whether a facility can treat the
+patient's condition. In an emergency, this may contribute to unsuitable
+referrals, transfers, and delays.
 
----
+LifeRoute aims to improve the decision-support process by combining
+patient-reported information, available vital readings, predicted
+resource requirements, hospital capability data, and route estimates.
 
-# 🎯 Problem Statement
+## 💡 How It Works
 
-Current emergency response systems frequently encounter:
-
-- Hospital overcrowding
-- Resource shortages
-- Incorrect patient routing
-- Delayed treatment
-- Inefficient emergency resource allocation
-
-LifeRoute addresses these challenges using AI-driven triage and intelligent hospital matching.
-
----
-
-# ✨ Core Features
-
-## 🧠 AI Emergency Assessment
-
-- KTAS Severity Prediction
-- Chief Complaint Classification
-- AI Clinical Reasoning
-- Vital Sign Analysis
-
----
-
-## 🏥 Intelligent Hospital Recommendation
-
-- Hospital Ranking Engine
-- Resource Matching
-- Specialist Availability
-- Medical Resource Allocation
-- ETA Prediction
-- Distance Calculation
-
----
-
-## 📍 Navigation & Routing
-
-- Live Location Support
-- Hospital Details
-- Route Preparation
-- Hospital Contact Information
-
----
-
-## 📊 Incident Management
-
-- Incident Response Checklist
-- Progress Tracking
-- Incident Dashboard
-- Role-aware Incident Filters
-- Downloadable Incident Response Brief
-
----
-
-# 🏗 Technology Stack
-
-## Frontend
-
-- React
-- Vite
-- Tailwind CSS
-- React Router
-
-## Backend
-
-- FastAPI
-- Python
-
-## Artificial Intelligence
-
-- KTAS Prediction Model
-- Resource Allocation Engine
-- Hospital Ranking Engine
-
-## Database
-
-- Firebase Firestore
-
-## APIs
-
-- OpenRouteService API
-- Browser Geolocation API
-
----
-
-# ⚙ AI Workflow
-
-```text
-Patient Assessment
-        │
-        ▼
-Symptom Analysis
-        │
-        ▼
-KTAS Prediction
-        │
-        ▼
-Medical Resource Allocation
-        │
-        ▼
+``` text
+Wearable Sensors
+      │
+      ▼
+ESP32 Microcontroller
+      │
+      ▼
+Vital Readings / Device Data
+      │
+      ▼
+FastAPI Backend ───────────────► Firebase / Cloud Firestore
+      │                                  │
+      ▼                                  ▼
+Emergency Assessment              Latest / Historical Readings
+      │
+      ▼
+KTAS-Based Triage + Complaint Classification
+      │
+      ▼
+Medical Resource Prediction
+      │
+      ▼
 Hospital Capability Matching
-        │
-        ▼
-Distance & ETA Calculation
-        │
-        ▼
-Hospital Ranking
-        │
-        ▼
-Recommended Hospital
-        │
-        ▼
-Incident Management
+      │
+      ▼
+Distance + ETA Calculation
+      │
+      ▼
+Hospital Ranking → Recommended Hospital
 ```
 
----
+The exact hardware-to-server transport depends on the firmware and
+network configuration used by the deployed prototype. The architecture
+is intended to support sending device readings to the backend over a
+network connection; it should not be described as a verified
+continuous-monitoring system unless that behavior has been tested on the
+actual hardware.
 
-# 📸 Application Screenshots
+## ✨ Key Features
 
-## 🏠 Landing Page
+### ❤️ Hardware-Integrated Vital Monitoring
 
-![](docs/screenshots/Screenshot%202026-08-08%20at%2010.59.24%E2%80%AFAM.png)
+The LifeRoute 2.0 prototype includes an ESP32-based wearable setup with
+sensor modules intended to collect physiological and movement data:
 
----
+-   **MAX30102:** pulse oximetry sensor intended for heart-rate and SpO₂
+    readings
+-   **MAX30205:** temperature sensor
+-   **MPU6050:** accelerometer and gyroscope for movement/activity
+    signals
+-   **SSD1306 OLED:** small display for local device output
+-   **ESP32 DevKit:** microcontroller for sensor interfacing and data
+    transmission
+-   **LiPo battery + TP4056 charging module:** portable power prototype
 
-## 📝 Patient Assessment
+Sensor readings are subject to sensor placement, calibration, firmware,
+electrical design, and environmental conditions. The hardware should be
+treated as a prototype, not as clinically validated equipment.
 
-![](docs/screenshots/Screenshot%202026-08-08%20at%2011.01.41%E2%80%AFAM.png)
+### 🧠 AI-Assisted Emergency Assessment
 
-![](docs/screenshots/Screenshot%202026-08-08%20at%2011.02.22%E2%80%AFAM.png)
+The application evaluates information such as the patient's chief
+complaint, available vital signs, and location. The existing decision
+pipeline uses rule-based logic and KTAS-based triage concepts to help
+estimate severity and resources.
 
----
+### 🩺 Medical Complaint Classification
 
-## 🤖 AI Recommendation
+  Category             Example complaints
+  -------------------- -------------------------------------------
+  Cardiology           Chest pain, palpitations, syncope
+  Neurology            Seizure, headache, dizziness, head trauma
+  Respiratory          Shortness of breath
+  Trauma               Open wound, burn, heavy bleeding
+  Orthopedic           Fracture, arm/leg pain
+  Gastrointestinal     Abdominal pain, vomiting
+  Ophthalmology        Ocular pain
+  ENT                  Throat pain
+  Infectious           Fever
+  Critical emergency   High-acuity conditions
 
-![](docs/screenshots/Screenshot%202026-08-08%20at%2011.02.41%E2%80%AFAM.png)
+### 🧬 Resource Prediction
 
-![](docs/screenshots/Screenshot%202026-08-08%20at%2011.02.48%E2%80%AFAM.png)
+Example mappings used by the decision logic may include:
 
----
+  -----------------------------------------------------------------------
+  Complaint / signal                  Potential resources to consider
+  ----------------------------------- -----------------------------------
+  Chest pain                          ECG, cardiologist, cardiac
+                                      monitoring
 
-## 🏥 Hospital Details
+  Seizure                             CT scan, neurologist, ICU
 
-![](docs/screenshots/Screenshot%202026-08-08%20at%2011.02.57%E2%80%AFAM.png)
+  Shortness of breath                 Oxygen, ventilatory support,
+                                      pulmonologist
 
----
+  Heavy bleeding                      Trauma team, general surgeon, blood
+                                      bank
 
-# 🏆 Hackathon Bounty Features
+  Fracture                            X-ray, orthopedic surgeon
 
-The following challenge tasks were successfully implemented as part of the hackathon.
+  Low SpO₂                            Further clinical assessment;
+                                      possible respiratory support
 
----
+  Abnormal heart rate                 Further clinical assessment and
+                                      possible cardiac monitoring
+  -----------------------------------------------------------------------
 
-# ✅ 1. Incident Action Checklist
+These are illustrative decision-support mappings, not medical
+instructions or definitive diagnoses.
 
-A real-time emergency response checklist allowing operators to track incident progress.
+### 🏥 Intelligent Hospital Matching
 
-### Features
+Hospitals are compared against predicted resource requirements, listed
+capabilities, operational status, distance, and estimated travel time.
+The nearest hospital is not automatically selected if another candidate
+better matches the required resources.
 
-- Assessment Completed
-- Ambulance Dispatched
-- Hospital Contacted
-- Emergency Escalation
-- Incident Resolution
-- Progress Percentage
-- Persistent Checklist State
+The demonstration dataset may contain simulated bed counts,
+ICU/ventilator availability, specialists, and operational status. These
+fields must not be interpreted as real-time verified hospital capacity.
 
-### Screenshot
+### 🗺️ Route and ETA Estimation
 
-![](docs/screenshots/Screenshot%202026-08-08%20at%2011.03.06%E2%80%AFAM.png)
+LifeRoute uses OpenRouteService for driving routes, distance, and
+estimated travel time, with a local geographic fallback where
+implemented.
 
----
+### 🔐 Authentication and Portals
 
-# ✅ 2. Role-aware Incident Dashboard
+The application uses Firebase Authentication and role-specific workflows
+for patients and hospitals. Protected backend operations should verify
+authentication tokens before allowing access.
 
-An incident dashboard that displays role-specific incident records.
+## 🔌 Hardware Components
 
-### Supported Roles
+  -----------------------------------------------------------------------
+  Component                           Purpose
+  ----------------------------------- -----------------------------------
+  ESP32 DevKit                        Reads sensor modules and handles
+                                      device-side processing/connectivity
 
-- All
-- Hospital
-- Authority
-- Patient
+  MAX30102                            Pulse oximetry sensor for
+                                      heart-rate and SpO₂ estimates
 
-### Features
+  MAX30205                            Temperature measurement
 
-- Dynamic Filtering
-- Incident Count
-- KTAS Severity
-- Assigned Hospital
-- Active / Resolved Status
+  MPU6050                             Motion sensing using accelerometer
+                                      and gyroscope
 
-### Screenshot
+  SSD1306 OLED                        Local display for selected
+                                      readings/status
 
-![](docs/screenshots/Screenshot%202026-08-08%20at%2011.03.14%E2%80%AFAM.png)
+  LiPo battery                        Portable power source
 
----
+  TP4056 module                       LiPo charging module; use a
+                                      suitable protected design
+  -----------------------------------------------------------------------
 
-# ✅ 3. AI Incident Response Brief
+**Electrical and safety note:** Confirm each module's operating voltage,
+I²C address, pinout, charging requirements, and current draw from its
+datasheet before wiring. Do not connect a LiPo battery or charging
+circuit without understanding the board's protection and power
+requirements. The pin mapping is intentionally not specified here
+because it must match the actual wiring and firmware.
 
-LifeRoute automatically generates a downloadable incident report containing:
+## 📡 Vital Data API
 
-- KTAS Priority
-- Recommended Hospital
-- Assigned Resources
-- ETA
-- Distance
-- AI Clinical Recommendations
-- Incident Timeline
+The backend's vital-reading workflow is designed around these endpoints:
 
-📄 **Sample Report**
+  ------------------------------------------------------------------------------------------
+  Method                  Endpoint                                   Purpose
+  ----------------------- ------------------------------------------ -----------------------
+  `POST`                  `/vitals/`                                 Submit a vital-reading
+                                                                     record
 
-[View LifeRoute Incident Response Brief](docs/LifeRoute_Incident_Response_Brief.pdf)
+  `GET`                   `/vitals/latest/{patient_id}`              Retrieve the latest
+                                                                     reading for a patient
 
----
+  `GET`                   `/vitals/history/{patient_id}?limit=100`   Retrieve reading
+                                                                     history, with a
+                                                                     configurable limit
+  ------------------------------------------------------------------------------------------
 
-# Project Flow
+A reading may contain fields such as:
 
-```text
-Landing Page
-
-↓
-
-Patient Assessment
-
-↓
-
-AI Processing
-
-↓
-
-Hospital Recommendation
-
-↓
-
-Hospital Details
-
-↓
-
-Incident Response Checklist
-
-↓
-
-Download Incident Response Brief
-
-↓
-
-Incident Dashboard
+``` json
+{
+  "patient_id": "demo-patient-001",
+  "device_id": "liferoute-wearable-001",
+  "timestamp": "2026-10-12T10:30:00Z",
+  "heart_rate": 82,
+  "spo2": 98,
+  "temperature": 36.8,
+  "activity": "walking"
+}
 ```
 
----
+This is an **illustrative payload only**. Use the exact schema expected
+by the current backend. Fields may be optional, and server-generated
+fields such as record IDs or recorded timestamps may be added by the
+backend.
 
-# 📂 Project Structure
+Readings are stored in the `health_readings` Firestore collection in the
+described implementation. Access should be restricted to authorized
+users, and patient data should not be exposed in public logs or
+repositories.
 
-```text
-LifeRoute
-│
-├── backend
-│   ├── ai
-│   ├── app
-│   └── services
-│
-├── frontend
-│   ├── components
-│   ├── context
-│   ├── hooks
-│   ├── pages
-│   ├── routes
-│   └── services
-│
-├── docs
-│   ├── screenshots
-│   └── LifeRoute_Incident_Response_Brief.pdf
-│
+## 🧠 Emergency Decision Pipeline
+
+  -----------------------------------------------------------------------
+  Stage                               Description
+  ----------------------------------- -----------------------------------
+  1\. Patient input                   Chief complaint, available vital
+                                      signs, and location
+
+  2\. Vital retrieval                 Read available data from the
+                                      wearable/backend workflow
+
+  3\. KTAS-based triage               Estimate emergency severity using
+                                      the implemented assessment logic
+
+  4\. Complaint classification        Map the complaint to a medical
+                                      category
+
+  5\. Resource prediction             Estimate potentially required
+                                      resources using category, triage,
+                                      and available signals
+
+  6\. Hospital matching               Compare predicted needs with
+                                      hospital capabilities
+
+  7\. Route calculation               Estimate distance and driving ETA
+
+  8\. Hospital ranking                Rank candidates using resource
+                                      compatibility, ETA, and status
+
+  9\. Recommendation                  Return the highest-ranked suitable
+                                      candidate
+  -----------------------------------------------------------------------
+
+The availability of wearable readings does not mean that every sensor
+measurement automatically triggers a diagnosis or emergency dispatch.
+Any alerting behavior must be explicitly implemented and tested.
+
+## 🎯 Resource-First Hospital Ranking
+
+The existing prototype describes a weighted ranking approach:
+
+``` text
+Final Score = Resource Match × 70%
+            + ETA Score × 25%
+            + Open Status × 5%
+```
+
+The score and weights are implementation-specific and should be reviewed
+and validated before any real-world use. A production system would
+require clinically reviewed decision logic and reliable, continuously
+updated hospital data.
+
+## 🏗️ System Architecture
+
+``` text
+[ESP32 + Sensors]
+        │
+        ▼
+[Device Firmware / Network Transport]
+        │
+        ▼
+[FastAPI Backend] ───────────► [Cloud Firestore]
+        │                       ├── health_readings
+        │                       ├── patients
+        │                       ├── hospitals
+        │                       └── users
+        │
+        ├── [Triage / Resource Logic]
+        ├── [Hospital Ranking]
+        └── [OpenRouteService]
+                    │
+                    ▼
+           [React + Vite Frontend]
+```
+
+The diagram is a conceptual architecture. The actual deployment and
+transport path should reflect the current firmware and API
+implementation.
+
+## 🛠️ Technology Stack
+
+**Frontend** - React - Vite - React Router - Tailwind CSS - Axios -
+Framer Motion - Lucide React
+
+**Backend** - Python - FastAPI - Pydantic - Uvicorn
+
+**AI / Decision Support** - KTAS-based triage logic - Medical complaint
+classification - Rule-based resource prediction - Vital-sign rule
+evaluation - Hospital matching and ranking
+
+**Database and Authentication** - Firebase Authentication - Cloud
+Firestore - Firebase Admin SDK
+
+**Routing** - OpenRouteService API - Browser Geolocation API
+
+**Hardware** - ESP32 DevKit - MAX30102 - MAX30205 - MPU6050 - SSD1306
+OLED - LiPo battery and TP4056 charging module
+
+**Deployment** - Vercel for the frontend - Render for the backend -
+Firebase services
+
+## 📂 Project Structure
+
+The structure below reflects the described software architecture. Add or
+adjust firmware paths to match the actual repository layout.
+
+``` text
+LifeRoute/
+├── backend/
+│   ├── ai/
+│   │   ├── hospital_engine/
+│   │   │   └── hospital_ranker.py
+│   │   ├── resource_engine/
+│   │   │   ├── category_resources.py
+│   │   │   ├── medical_categories.py
+│   │   │   ├── ktas_rules.py
+│   │   │   └── vital_rules.py
+│   │   └── predictor.py
+│   ├── app/
+│   │   ├── api/
+│   │   ├── core/
+│   │   ├── database/
+│   │   ├── models/
+│   │   └── services/
+│   ├── data/
+│   │   └── hospitals_seed.json
+│   ├── requirements.txt
+│   └── .env.example
+├── frontend/
+│   ├── public/
+│   └── src/
+│       ├── components/
+│       ├── context/
+│       ├── hooks/
+│       ├── pages/
+│       ├── routes/
+│       └── services/
+├── hardware/                 # Add firmware and wiring documentation here
+│   ├── firmware/
+│   └── README.md
+├── docs/
+│   └── screenshots/
+├── .gitignore
 └── README.md
 ```
 
----
+## 🚀 Getting Started
 
-# ▶ Installation
+### Prerequisites
 
-## Clone Repository
+-   Git
+-   Node.js and npm
+-   Python 3.10 or later (use the version supported by your
+    dependencies)
+-   A Firebase project with Authentication and Cloud Firestore
+    configured
+-   An OpenRouteService API key
+-   ESP32 development environment and compatible sensor modules, if
+    testing hardware
 
-```bash
+### 1. Clone the repository
+
+``` bash
 git clone https://github.com/Saiyam-Kumar/LifeRoute.git
-
 cd LifeRoute
 ```
 
----
+### 2. Configure and run the backend
 
-## Backend
-
-```bash
+``` bash
 cd backend
-
 python -m venv .venv
-
 source .venv/bin/activate
-
 pip install -r requirements.txt
+```
 
+Configure the required Firebase credentials and `ORS_API_KEY` using the
+environment variables expected by the current backend. Prefer a local
+`.env` file or your hosting provider's secret manager.
+
+Start the API:
+
+``` bash
 uvicorn app.main:app --reload
 ```
 
-Backend runs on
+The API should be available at `http://127.0.0.1:8000`, and the
+interactive API documentation at `http://127.0.0.1:8000/docs`, if
+enabled by the application.
 
-```
-http://127.0.0.1:8000
-```
+### 3. Configure and run the frontend
 
----
+Open a second terminal:
 
-## Frontend
-
-```bash
+``` bash
 cd frontend
-
 npm install
-
 npm run dev
 ```
 
-Frontend runs on
+Set the frontend Firebase configuration and backend API base URL using
+the environment variable names expected by the frontend. Open the local
+URL printed by Vite.
 
-```
-http://localhost:5173
-```
+### 4. Prepare the wearable hardware
 
----
+1.  Verify the exact sensor boards and their datasheets.
+2.  Wire the sensors to the ESP32 using a compatible voltage level and
+    the pin mapping used in your firmware.
+3.  Test each sensor independently before combining them.
+4.  Confirm that the firmware reads values reliably and handles missing
+    or invalid readings.
+5.  Configure the device's network connection and API destination as
+    required by the implemented firmware.
+6.  Send a test reading to `POST /vitals/` and verify that the backend
+    accepts it.
+7.  Confirm that the reading is stored and can be retrieved from the
+    latest/history endpoints.
+8.  Test disconnects, reconnects, invalid sensor values, and low-battery
+    behavior before demonstrations.
 
-# 🌟 Future Scope
+**Firmware note:** This README does not assume a particular
+Arduino/PlatformIO project, pin assignment, Wi-Fi provisioning method,
+or firmware command because those details must match the hardware
+repository.
 
-- Live Hospital Capacity Monitoring
-- Real-time Ambulance Tracking
-- Electronic Health Record Integration
-- Multi-language Support
-- Predictive Emergency Demand Analytics
-- AI-powered Capacity Forecasting
+## 🧪 Example Scenario
 
----
+A patient reports chest pain and the available readings show an elevated
+heart rate. The application classifies the complaint, applies its
+configured triage/resource rules, compares the predicted resource needs
+against the hospital dataset, and ranks candidate hospitals using
+resource compatibility and route estimates.
 
-# 👥 Team
+The output is a prototype decision-support recommendation. It must be
+checked by qualified professionals and must not delay emergency care.
 
-Developed as part of AlgoOlympia Hackathon by **Saiyam Kumar** and **Stuti Sharma**
+## 🔐 Security and Privacy
 
----
+-   Never commit `.env` files, Firebase service-account keys, API
+    secrets, or device credentials.
+-   Keep the OpenRouteService key on the backend; do not expose it in
+    browser code.
+-   Require authentication and authorization for protected patient and
+    hospital data.
+-   Apply restrictive Firestore security rules and backend access
+    checks.
+-   Avoid logging personally identifiable or sensitive health
+    information.
+-   Use synthetic/demo data during development and demonstrations.
+-   Obtain appropriate consent and follow applicable privacy
+    requirements before collecting real health data.
 
-# ❤️ Vision
+## 📊 Demo Data and Limitations
 
-LifeRoute demonstrates how Artificial Intelligence can support emergency responders by enabling **faster**, **smarter**, and **resource-aware** medical decisions.
+The hospital dataset may include public hospital information alongside
+prototype/simulated values for beds, ICU capacity, ventilators,
+specialist availability, resources, and operational status. Unless
+connected to a verified live source, these fields are **not real-time
+hospital availability**.
 
----
+Wearable readings can be affected by motion, sensor placement,
+calibration, power stability, and connectivity. Missing, delayed, or
+inaccurate readings must not be treated as normal readings.
 
-<div align="center">
+## 🔮 Future Scope
 
-## 🚑 The Right Care. At The Right Time.
+-   Improve wearable firmware reliability and sensor calibration
+-   Add robust device pairing and secure device identity
+-   Build a patient-facing vital history and device status dashboard
+-   Add carefully validated alerts for missing or abnormal readings
+-   Integrate verified, continuously updated hospital capacity feeds
+-   Explore ambulance discovery, dispatch support, and live tracking
+-   Add multilingual support, including Hindi and Punjabi
+-   Evaluate clinical decision-support logic with qualified healthcare
+    professionals
+-   Conduct security, privacy, usability, and regulatory reviews before
+    real-world deployment
 
-**Built with ❤️ for smarter emergency response.**
+## ⚠️ Medical Disclaimer
 
-</div>
+LifeRoute 2.0 is a prototype for educational, research, and hackathon
+purposes. It is **not a medical device** and is not intended to
+diagnose, treat, monitor, or prevent any disease. It does not replace
+professional medical judgment, emergency services, or hospital triage
+personnel.
+
+Do not rely on this prototype's sensor readings, triage output, or
+hospital data to make real emergency decisions. In an emergency, contact
+local emergency medical services and qualified healthcare professionals.
+
+## 👥 Team
+
+**Contributors:** Saiyam Kumar · Stuti Sharma
+
+Built around AI-assisted decision support, full-stack development,
+database integration, wearable hardware prototyping, and emergency
+healthcare workflow design.
+
+::: {align="center"}
+### 🚑 LifeRoute 2.0
+
+**Sense. Assess. Match. Route.**
+
+*The Right Care. At The Right Time.*
+:::
