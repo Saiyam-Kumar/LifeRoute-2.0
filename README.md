@@ -10,7 +10,7 @@ data. The platform is designed to help assess a patient's condition,
 estimate required medical resources, and recommend a suitable hospital
 using resource compatibility, availability data, distance, and estimated
 travel time.
-:::
+
 
 ------------------------------------------------------------------------
 
