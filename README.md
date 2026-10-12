@@ -1,4 +1,4 @@
-::: {align="center"}
+{align="center"}
 # 🚑 LifeRoute 2.0
 
 ### AI-Powered Emergency Triage, Wearable Vital Monitoring & Intelligent Hospital Routing
