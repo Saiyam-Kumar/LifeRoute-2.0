@@ -1,4 +1,3 @@
-{align="center"}
 # 🚑 LifeRoute 2.0
 
 ### AI-Powered Emergency Triage, Wearable Vital Monitoring & Intelligent Hospital Routing
@@ -12,19 +11,6 @@ estimate required medical resources, and recommend a suitable hospital
 using resource compatibility, availability data, distance, and estimated
 travel time.
 :::
-
-```{=html}
-<p align="center">
-```
-`<img src="https://img.shields.io/badge/Frontend-React-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React">`{=html}
-`<img src="https://img.shields.io/badge/Build-Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite">`{=html}
-`<img src="https://img.shields.io/badge/Backend-FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI">`{=html}
-`<img src="https://img.shields.io/badge/Database-Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black" alt="Firebase">`{=html}
-`<img src="https://img.shields.io/badge/Hardware-ESP32-E7352C?style=for-the-badge&logo=espressif&logoColor=white" alt="ESP32">`{=html}
-`<img src="https://img.shields.io/badge/Routing-OpenRouteService-5C8D89?style=for-the-badge" alt="OpenRouteService">`{=html}
-```{=html}
-</p>
-```
 
 ------------------------------------------------------------------------
 
