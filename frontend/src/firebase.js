@@ -1,21 +1,21 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { getAnalytics } from "firebase/analytics";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBQs0MK89XM9JJIYXzvMRWMJYE39zV2um8",
-  authDomain: "liferoute-2-0.firebaseapp.com",
-  projectId: "liferoute-2-0",
-  storageBucket: "liferoute-2-0.firebasestorage.app",
-  messagingSenderId: "910235459944",
-  appId: "1:910235459944:web:0c17620d02646d3f1bf6dd",
-  measurementId: "G-YGJYDJSQ57"
+  apiKey: "AIzaSyBNLEi7AmDagT3CgN-5GJdo9VMsBPpLPrI",
+  authDomain: "liferoute-2-0-demo.firebaseapp.com",
+  projectId: "liferoute-2-0-demo",
+  storageBucket: "liferoute-2-0-demo.firebasestorage.app",
+  messagingSenderId: "493149684812",
+  appId: "1:493149684812:web:c73183a0142b44b81260e9",
+  measurementId: "G-JTCTJT64VG"
 };
-
 
 const app = initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
-export const db = getFirestore(app);
+
+export const analytics = getAnalytics(app);
 
 export default app;

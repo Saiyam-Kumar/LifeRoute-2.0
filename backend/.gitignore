@@ -18,3 +18,11 @@ backend/.env
 .vscode/
 
 firebase_key.json
+
+# Firebase / service account credentials
+firebase_key.json
+firebase_key_new.json
+firebase_key_old.json
+backend/firebase_key.json
+backend/firebase_key_new.json
+backend/firebase_key_old.json

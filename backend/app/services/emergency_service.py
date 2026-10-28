@@ -2,6 +2,8 @@ from datetime import datetime, timezone
 
 from app.database.firebase import db
 from app.services.recommendation import RecommendationService
+from app.services.patient_service import PatientService
+from app.services.sms_service import sms_service
 
 
 class EmergencyService:
@@ -9,6 +11,7 @@ class EmergencyService:
 
     def __init__(self):
         self.recommendation = RecommendationService()
+        self.patient_service = PatientService()
 
     def create_emergency_case(
         self,
@@ -25,6 +28,8 @@ class EmergencyService:
 
         if not hospital_id:
             raise ValueError("Recommended hospital ID is missing.")
+
+        ktas_level = prediction.get("ktas_level")
 
         case_data = {
             "patient_id": patient_id,
@@ -55,7 +60,7 @@ class EmergencyService:
             },
 
             "assessment": {
-                "ktas_level": prediction.get("ktas_level"),
+                "ktas_level": ktas_level,
                 "category": prediction.get("category"),
                 "resources": prediction.get("resources", []),
                 "reasons": prediction.get("reasons", []),
@@ -77,10 +82,78 @@ class EmergencyService:
             "created_at": datetime.now(timezone.utc),
         }
 
+        # Create the emergency case first.
+        # SMS failure must never stop the hospital from receiving the case.
         doc_ref = db.collection(self.COLLECTION).document()
         doc_ref.set(case_data)
 
         case_data["id"] = doc_ref.id
+
+        # --------------------------------------------------
+        # EMERGENCY CONTACT SMS
+        # KTAS 1, 2, 3 -> send SMS
+        # --------------------------------------------------
+
+        if ktas_level in [1, 2, 3]:
+
+            try:
+                patient = self.patient_service.get_patient(patient_id)
+
+                if patient:
+                    emergency_contact_phone = patient.get(
+                        "emergency_contact_phone"
+                    )
+
+                    emergency_contact_name = patient.get(
+                        "emergency_contact_name"
+                    ) or "Emergency Contact"
+
+                    patient_name = patient.get(
+                        "full_name"
+                    ) or "LifeRoute Patient"
+
+                    if emergency_contact_phone:
+
+                        sms_result = sms_service.send_emergency_alert(
+                            to_phone=emergency_contact_phone,
+                            patient_name=patient_name,
+                            ktas_level=int(ktas_level),
+                        )
+
+                        notification = {
+                            "sms_sent": True,
+                            "recipient_name": emergency_contact_name,
+                            "message_sid": sms_result.get("message_sid"),
+                        }
+
+                    else:
+                        notification = {
+                            "sms_sent": False,
+                            "reason": "Emergency contact phone number is missing.",
+                        }
+
+                else:
+                    notification = {
+                        "sms_sent": False,
+                        "reason": "Patient profile not found.",
+                    }
+
+            except Exception as error:
+                print("Emergency SMS failed:", error)
+
+                notification = {
+                    "sms_sent": False,
+                    "reason": "SMS service failed.",
+                }
+
+            # Store notification result in the emergency case
+            db.collection(self.COLLECTION).document(
+                case_data["id"]
+            ).update({
+                "notification": notification
+            })
+
+            case_data["notification"] = notification
 
         return case_data
 

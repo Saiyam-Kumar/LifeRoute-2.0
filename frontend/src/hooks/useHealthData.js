@@ -24,27 +24,70 @@ export default function useHealthData() {
       }
 
       try {
-        const response = await api.get(`/vitals/history/${user.uid}`, {
-          params: { limit: 100 },
-        });
+        // --------------------------------------------------
+        // Get LIVE wearable reading first
+        // --------------------------------------------------
+
+        const latestResponse = await api.get(
+          `/vitals/latest/${user.uid}`
+        );
 
         if (
           !cancelled &&
-          Array.isArray(response.data) &&
-          response.data.length > 0
+          latestResponse.data
         ) {
-          const readings = [...response.data].reverse();
-
-          setHealthData(readings);
+          setHealthData([latestResponse.data]);
           setStage("real");
         }
-      } catch (error) {
-        console.error("Failed to load patient vitals:", error);
 
-        if (!cancelled) {
-          setHealthData(null);
+      } catch (latestError) {
+
+        console.error(
+          "Live wearable reading unavailable:",
+          latestError
+        );
+
+        // --------------------------------------------------
+        // Fallback to recorded history
+        // --------------------------------------------------
+
+        try {
+          const historyResponse = await api.get(
+            `/vitals/history/${user.uid}`,
+            {
+              params: { limit: 100 },
+            }
+          );
+
+          if (
+            !cancelled &&
+            Array.isArray(historyResponse.data) &&
+            historyResponse.data.length > 0
+          ) {
+            const readings = [
+              ...historyResponse.data
+            ].reverse();
+
+            setHealthData(readings);
+            setStage("real");
+          } else if (!cancelled) {
+            setHealthData(null);
+          }
+
+        } catch (historyError) {
+
+          console.error(
+            "Failed to load patient vitals:",
+            historyError
+          );
+
+          if (!cancelled) {
+            setHealthData(null);
+          }
         }
+
       } finally {
+
         if (!cancelled) {
           setLoading(false);
         }
@@ -56,7 +99,13 @@ export default function useHealthData() {
     return () => {
       cancelled = true;
     };
+
   }, [user?.uid]);
+
+
+  // --------------------------------------------------
+  // DATA
+  // --------------------------------------------------
 
   const data =
     stage === "real"
@@ -65,17 +114,35 @@ export default function useHealthData() {
         ? deterioratingHealthData
         : normalHealthData;
 
-  const latest = data?.[data.length - 1] ?? null;
+
+  const latest =
+    data?.[data.length - 1] ?? null;
+
+
+  // --------------------------------------------------
+  // RISK
+  // --------------------------------------------------
 
   let risk;
 
-  if (stage === "real" && latest) {
+
+  if (
+    stage === "real" &&
+    latest
+  ) {
+
     risk = {
       score: 0,
       label: "Monitoring",
-      reasons: ["Based on your latest recorded vitals."],
+      reasons: [
+        "Based on your latest recorded vitals.",
+      ],
     };
-  } else if (stage === "deteriorating") {
+
+  } else if (
+    stage === "deteriorating"
+  ) {
+
     risk = {
       score: 0.78,
       label: "Deteriorating",
@@ -84,13 +151,22 @@ export default function useHealthData() {
         "SpO₂ is trending downward.",
       ],
     };
+
   } else {
+
     risk = {
       score: 0.12,
       label: "Normal",
-      reasons: ["Vitals are currently within the demo normal range."],
+      reasons: [
+        "Vitals are currently within the demo normal range.",
+      ],
     };
   }
+
+
+  // --------------------------------------------------
+  // RETURN
+  // --------------------------------------------------
 
   return {
     stage,

@@ -270,7 +270,7 @@ export default function Dashboard() {
   const incomingEmergencies =
     emergencies.filter(
       (emergency) =>
-        emergency.status === "incoming"
+        emergency.status !== "completed"
     );
 
   return (
@@ -637,26 +637,83 @@ export default function Dashboard() {
 function EmergencyCard({
   emergency,
 }) {
-  const patient =
-    emergency.patient || {};
+  const patient = emergency.patient || {};
+  const vitals = emergency.vitals || {};
+  const assessment = emergency.assessment || {};
+  const hospital = emergency.hospital || {};
+  const location = emergency.location || {};
 
-  const vitals =
-    emergency.vitals || {};
+  const ktas = Number(assessment.ktas_level) || 0;
+  const ktasCritical = ktas === 1 || ktas === 2;
 
-  const assessment =
-    emergency.assessment || {};
+  const [status, setStatus] = useState(
+    emergency.status || "incoming"
+  );
 
-  const hospital =
-    emergency.hospital || {};
+  const [updatingStatus, setUpdatingStatus] =
+    useState(false);
 
-  const location =
-    emergency.location || {};
+  const statusConfig = {
+    incoming: {
+      label: "Incoming",
+      next: "accepted",
+      nextLabel: "Accept Emergency",
+    },
+    accepted: {
+      label: "Accepted",
+      next: "preparing",
+      nextLabel: "Prepare Patient",
+    },
+    preparing: {
+      label: "Preparing",
+      next: "patient_arrived",
+      nextLabel: "Patient Arrived",
+    },
+    patient_arrived: {
+      label: "Patient Arrived",
+      next: "completed",
+      nextLabel: "Complete Case",
+    },
+    completed: {
+      label: "Completed",
+      next: null,
+      nextLabel: null,
+    },
+  };
 
-  const ktas =
-    Number(assessment.ktas_level) || 0;
+  const currentStatus =
+    statusConfig[status] || statusConfig.incoming;
 
-  const ktasCritical =
-    ktas === 1 || ktas === 2;
+  const updateEmergencyStatus = async () => {
+    if (!currentStatus.next || updatingStatus) {
+      return;
+    }
+
+    try {
+      setUpdatingStatus(true);
+
+      await api.patch(
+        `/emergency/cases/${emergency.id}/status`,
+        {
+          status: currentStatus.next,
+        }
+      );
+
+      setStatus(currentStatus.next);
+    } catch (error) {
+      console.error(
+        "Emergency status update failed:",
+        error
+      );
+
+      alert(
+        error?.response?.data?.detail ||
+          "Unable to update emergency status."
+      );
+    } finally {
+      setUpdatingStatus(false);
+    }
+  };
 
   return (
     <div className="overflow-hidden rounded-2xl border border-[#FF5A36]/20 bg-[#FF5A36]/[0.025]">
@@ -683,21 +740,34 @@ function EmergencyCard({
 
         </div>
 
-        <span
-          className={`inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium ${
-            ktasCritical
-              ? "border-red-400/20 bg-red-400/[0.08] text-red-300"
-              : "border-orange-400/20 bg-orange-400/[0.08] text-orange-300"
-          }`}
-        >
-          <span className="h-1.5 w-1.5 rounded-full bg-current" />
+        <div className="flex flex-wrap items-center gap-2">
 
-          KTAS {ktas || "N/A"}
+          {/* CASE STATUS */}
 
-          {assessment.category
-            ? ` — ${assessment.category}`
-            : ""}
-        </span>
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.04] px-3 py-1.5 text-xs font-medium text-white/60">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+            {currentStatus.label}
+          </span>
+
+          {/* KTAS */}
+
+          <span
+            className={`inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium ${
+              ktasCritical
+                ? "border-red-400/20 bg-red-400/[0.08] text-red-300"
+                : "border-orange-400/20 bg-orange-400/[0.08] text-orange-300"
+            }`}
+          >
+            <span className="h-1.5 w-1.5 rounded-full bg-current" />
+
+            KTAS {ktas || "N/A"}
+
+            {assessment.category
+              ? ` — ${assessment.category}`
+              : ""}
+          </span>
+
+        </div>
 
       </div>
 
@@ -806,6 +876,12 @@ function EmergencyCard({
               )
             )}
 
+            {(assessment.resources || []).length === 0 && (
+              <span className="text-xs text-white/30">
+                No specific resources listed.
+              </span>
+            )}
+
           </div>
 
         </div>
@@ -888,6 +964,49 @@ function EmergencyCard({
 
           </div>
         )}
+
+        {/* EMERGENCY WORKFLOW */}
+
+        <div className="mt-6 border-t border-white/[0.07] pt-5">
+
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+
+            <div>
+
+              <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-white/25">
+                Emergency Workflow
+              </p>
+
+              <p className="mt-1.5 text-sm text-white/50">
+                Current status:{" "}
+                <span className="font-medium text-white/80">
+                  {currentStatus.label}
+                </span>
+              </p>
+
+            </div>
+
+            {currentStatus.next ? (
+              <button
+                type="button"
+                onClick={updateEmergencyStatus}
+                disabled={updatingStatus}
+                className="inline-flex items-center justify-center rounded-xl bg-[#FF5A36] px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-[#FF5A36]/10 transition hover:bg-[#ff6a4a] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {updatingStatus
+                  ? "Updating..."
+                  : currentStatus.nextLabel}
+              </button>
+            ) : (
+              <div className="inline-flex items-center gap-2 rounded-xl border border-emerald-400/15 bg-emerald-400/[0.06] px-5 py-3 text-sm font-medium text-emerald-300">
+                <CheckCircle2 size={16} />
+                Emergency Case Completed
+              </div>
+            )}
+
+          </div>
+
+        </div>
 
       </div>
     </div>
