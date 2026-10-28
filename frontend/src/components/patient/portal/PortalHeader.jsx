@@ -7,7 +7,11 @@ export default function PortalHeader() {
   const { profile, user } = useAuth() || {};
 
   const displayName =
-    profile?.name || profile?.firstName || user?.email?.split("@")[0] || "there";
+  profile?.full_name ||
+  profile?.name ||
+  profile?.firstName ||
+  user?.email?.split("@")[0] ||
+  "there";
 
   return (
     <header className="sticky top-0 z-30 border-b border-white/[0.08] bg-[#0B0D12]/90 backdrop-blur-md">

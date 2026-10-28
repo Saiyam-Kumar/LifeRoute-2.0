@@ -64,10 +64,14 @@ const usePatientForm = () => {
 
       let recordedAt = null;
 
-      if (latestVitals.recorded_at) {
-        const parsedDate = new Date(
-          latestVitals.recorded_at
-        );
+      // Live wearable readings use updated_at.
+      // Firestore/history readings use recorded_at.
+      const timestamp =
+        latestVitals.updated_at ||
+        latestVitals.recorded_at;
+
+      if (timestamp) {
+        const parsedDate = new Date(timestamp);
 
         if (!Number.isNaN(parsedDate.getTime())) {
           recordedAt = parsedDate;
@@ -110,6 +114,12 @@ const usePatientForm = () => {
         latestVitals.spo2
       );
 
+      // ESP32 sends temperature in Fahrenheit.
+      const temperature = Number(latestVitals.temperature);
+      const validTemperature =
+        Number.isFinite(temperature) &&
+        temperature >= 80 &&
+        temperature <= 115;
 
       const validHeartRate =
         Number.isFinite(heartRate) &&
@@ -118,9 +128,8 @@ const usePatientForm = () => {
 
 
       /*
-       * Current MAX30102 readings have sometimes been
-       * suspiciously low, so only accept SpO2 values
-       * in a reasonable range.
+       * Current MAX30102 readings may be unavailable.
+       * Only accept SpO2 values in a reasonable range.
        */
 
       const validSpO2 =
@@ -143,8 +152,14 @@ const usePatientForm = () => {
         activity:
           latestVitals.activity ?? null,
 
+        temperature:
+          validTemperature ? temperature : null,
+
         recorded_at:
           recordedAt.toISOString(),
+
+        updated_at:
+          latestVitals.updated_at ?? latestVitals.recorded_at ?? null,
 
         device_id:
           latestVitals.device_id ?? null,
@@ -152,12 +167,19 @@ const usePatientForm = () => {
 
 
       // ------------------------------------------------
-      // At least one usable vital is required
+      // A wearable reading exists if the backend has
+      // sent a recent reading.
+      //
+      // Do NOT require HR or SpO2 to be valid here.
+      // This allows the UI to recognize the wearable
+      // even while the sensor is returning 0.
       // ------------------------------------------------
 
       if (
         usableVitals.heart_rate === null &&
-        usableVitals.spo2 === null
+        usableVitals.spo2 === null &&
+        usableVitals.activity === null &&
+        usableVitals.temperature === null
       ) {
         setWearableVitals(null);
         return;
@@ -193,6 +215,10 @@ const usePatientForm = () => {
                 usableVitals.spo2,
               saturation_missing: 0,
             }
+          : {}),
+
+        ...(usableVitals.temperature !== null
+          ? { bt: usableVitals.temperature }
           : {}),
       }));
 
@@ -586,6 +612,9 @@ const usePatientForm = () => {
 
           activity:
             wearableVitals.activity,
+
+          temperature:
+            wearableVitals.temperature,
 
           recorded_at:
             wearableVitals.recorded_at,

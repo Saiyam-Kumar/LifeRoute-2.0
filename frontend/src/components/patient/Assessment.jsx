@@ -1255,6 +1255,16 @@ export default function Assessment() {
 
                     )}
 
+                  {wearableVitals.temperature !== null &&
+                    wearableVitals.temperature !== undefined && (
+                      <WearableVitalCard
+                        icon={Thermometer}
+                        label="Temperature"
+                        value={Number(wearableVitals.temperature).toFixed(1)}
+                        unit="°F"
+                      />
+                    )}
+
                 </div>
 
 
@@ -1571,6 +1581,15 @@ export default function Assessment() {
                       />
 
                     </div>
+
+                    {wearableVitals?.temperature !== null &&
+                      wearableVitals?.temperature !== undefined && (
+                        <span className="text-[10.5px] text-[#FF7A5C]/70">
+                          Pre-filled from wearable
+                          {wearableVitals.updated_at &&
+                            ` · ${new Date(wearableVitals.updated_at).toLocaleTimeString()}`}
+                        </span>
+                      )}
 
                   </Field>
 

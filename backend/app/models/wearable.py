@@ -2,7 +2,12 @@ from pydantic import BaseModel, Field
 
 
 class WearableVitalsCreate(BaseModel):
-    heart_rate: float | None = Field(default=None, ge=0, le=250)
-    spo2: float | None = Field(default=None, ge=0, le=100)
-    temperature: float | None = Field(default=None, ge=20, le=50)
-    activity: float | None = Field(default=None, ge=0)
+    heart_rate: float | None = None
+    spo2: float | None = None
+    activity: float | None = None
+
+    # ESP32 sends temperature in Fahrenheit.
+    temperature: float | None = Field(
+        default=None,
+        description="Temperature in degrees Fahrenheit",
+    )

@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from app.models.emergency import EmergencyStatusUpdate
 
 from app.core.auth import verify_firebase_token
 from app.services.emergency_service import EmergencyService
@@ -95,4 +96,76 @@ def get_hospital_emergencies(
     return {
         "hospital_id": hospital_id,
         "emergencies": emergencies,
+    }
+
+@router.patch("/cases/{case_id}/status")
+def update_emergency_status(
+    case_id: str,
+    data: EmergencyStatusUpdate,
+    decoded_token: dict = Depends(verify_firebase_token),
+):
+    uid = decoded_token.get("uid")
+
+    if not uid:
+        raise HTTPException(
+            status_code=401,
+            detail="Authenticated user UID not found.",
+        )
+
+    hospital = hospital_service.get_hospital_by_firebase_uid(uid)
+
+    if not hospital:
+        raise HTTPException(
+            status_code=403,
+            detail="Hospital account is not registered.",
+        )
+
+    hospital_id = hospital.get("id")
+
+    try:
+        emergency = service.update_emergency_status(
+            case_id=case_id,
+            hospital_id=hospital_id,
+            new_status=data.status,
+        )
+
+    except PermissionError as error:
+        raise HTTPException(
+            status_code=403,
+            detail=str(error),
+        )
+
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail=str(error),
+        )
+
+    return {
+        "message": "Emergency status updated successfully.",
+        "case": emergency,
+    }
+
+@router.get("/my-case")
+def get_my_emergency_case(
+    decoded_token: dict = Depends(verify_firebase_token),
+):
+    uid = decoded_token.get("uid")
+
+    if not uid:
+        raise HTTPException(
+            status_code=401,
+            detail="Authenticated user UID not found.",
+        )
+
+    emergency = service.get_patient_emergency(uid)
+
+    if emergency is None:
+        raise HTTPException(
+            status_code=404,
+            detail="No emergency case found for this patient.",
+        )
+
+    return {
+        "case": emergency,
     }
