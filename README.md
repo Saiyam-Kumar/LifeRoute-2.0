@@ -561,7 +561,6 @@ Built around AI-assisted decision support, full-stack development,
 database integration, wearable hardware prototyping, and emergency
 healthcare workflow design.
 
-::: {align="center"}
 ### 🚑 LifeRoute 2.0
 
 **Sense. Assess. Match. Route.**
