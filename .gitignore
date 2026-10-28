@@ -22,6 +22,6 @@ frontend/node_modules/
 dist/
 frontend/dist/
 
-# macOS
+# macOSM
 .DS_Store
 backend/simulator/
