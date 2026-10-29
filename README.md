@@ -1,7 +1,5 @@
 # 🚑 LifeRoute 2.0
 
-Video Demo -> https://drive.google.com/drive/folders/1ikX428Gy8IPmYQaGPRMbrIqHHJqeSUM2
-
 ### AI-Powered Emergency Triage, Wearable Vital Monitoring & Intelligent Hospital Routing
 
 **The Right Care. At The Right Time.**
